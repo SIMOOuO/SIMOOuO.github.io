@@ -1,14 +1,19 @@
 //---------get header and footer---------
 function loadHTML(id, file) {
-  fetch(file)
+  return fetch(file)
     .then(res => res.text())
     .then(data => {
       document.getElementById(id).innerHTML = data;
     });
 }
 
-loadHTML("header", "header.html");
-loadHTML("footer", "footer.html");
+loadHTML("header", "header.html").then(() => {
+  setActiveNav();
+});
+
+loadHTML("footer", "footer.html").then(() => {
+  initDisclaimer();
+});
 
 //---------header---------
 window.addEventListener("scroll", () => {
@@ -98,3 +103,38 @@ function topFunction() {
   document.body.scrollTop = 0; // For Safari
   document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
 }
+
+//---------disclaimer---------
+function initDisclaimer() {
+  const modal = document.getElementById("disclaimerModal");
+  const acceptBtn = document.getElementById("acceptDisclaimer");
+  const openBtn = document.getElementById("openDisclaimer");
+  const closeBtn = document.getElementById("closeModal");
+
+  if (!modal || !acceptBtn || !openBtn || !closeBtn) {
+    console.error("Disclaimer modal elements missing");
+    return;
+  }
+
+  function showModal() {
+    modal.classList.add("show");
+  }
+
+  function hideModal() {
+    modal.classList.remove("show");
+  }
+
+  if (!localStorage.getItem("disclaimerAccepted")) {
+    showModal();
+  }
+
+  acceptBtn.addEventListener("click", () => {
+    localStorage.setItem("disclaimerAccepted", "true");
+    hideModal();
+  });
+
+  closeBtn.addEventListener("click", hideModal);
+  openBtn.addEventListener("click", showModal);
+}
+
+
