@@ -1,0 +1,139 @@
+footer{
+    position: relative;
+    width: 100%;
+    height: auto;
+    padding: 50px 100px;
+    background: linear-gradient(135deg, #414141, #222222);
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    flex-direction: column;
+}
+.profile{
+    margin: 1em auto;
+    background-color: #414141;
+    color: white;
+    width: 500px;
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+    border-bottom-right-radius: 20px;
+    border-bottom-left-radius: 20px;
+    box-shadow: 0 0 10px black;
+}
+.avatar {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid white;
+    box-shadow: 0 0 10px gray;
+}
+.icon-social {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid white;
+    box-shadow: 0 0 5px gray;
+    background-color: white;
+}
+.text-profile {
+    font-family: Bitcount Grid Single;
+}
+.profile {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1em;
+}
+footer .footer-container{
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    flex-direction: row;
+    margin-bottom: 30px;
+}
+footer .footer-container .sec{
+    margin-right: 40px;
+}
+footer .footer-container .sec.aboutme{
+    width: 45%;
+}
+footer .footer-container h2{
+    position: relative;
+    color: #fff;
+    font-weight: 500;
+    margin-bottom: 15px;
+}
+footer .footer-container h2:before{
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+    width: 50px;
+    height: 2px;
+    background: #f00;
+}
+footer p{
+    color: #999;
+
+}
+.sci {
+    margin-top: 20px;
+    display: flex;
+}
+.sci li{
+    list-style: none;
+}
+.sci li a{
+    display: inline-block;
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #414141, #222222);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-right: 10px;
+    text-decoration: none;
+    border-radius: 4px;
+}
+.sci li a:hover{
+    background: #f00;
+}
+.sci li a .fa{
+    color: #fff;
+    font-size: 20PX;
+}
+.contactme{
+    position: relative;
+    width: 40%;
+}
+.copyrightText{
+    width: 100%;
+    height: 0;
+    background: linear-gradient(135deg, #414141, #222222);
+    padding: 0;
+    text-align: center;
+    color: #999;
+    border-top: 1px solid #555;
+}
+.copyrightText p{
+    margin: 0;
+    font-family: 'Times New Roman', Times, serif, Arial, Helvetica, sans-serif;
+}
+
+@media (max-width: 991px){
+    footer{
+        padding: 40px;
+    }
+    footer .footer-container{
+        flex-direction: column;
+    }
+    footer .footer-container .sec{
+        margin-right: 0;
+        margin-bottom: 40px;
+    }
+    .copyrightText{
+        padding: 5px 0;
+    }
+}

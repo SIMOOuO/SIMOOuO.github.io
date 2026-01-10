@@ -1,0 +1,75 @@
+#header {
+  background: linear-gradient(135deg, #414141, #222222);
+  padding: 50px 5px 25px 5px;
+  font-size: 90px;
+  font-weight: bold;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  transition: 1s;
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  box-shadow: 0 0 10px black;
+}
+.wave {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  transform: scale(0);
+  opacity: 0;
+  animation: waveEffect 1.5s ease-out forwards;
+}
+@keyframes waveEffect {
+  0% { transform: scale(0); opacity: 0.5; }
+  100% { transform: scale(100); opacity: 0; }
+}
+
+.icon {
+  width: 100px;
+  height: 100px;
+  transition: transform 0.3s;
+  border-radius: 35%;
+  background-color: #2e2e2e;
+  box-shadow:
+    8px 8px 16px rgba(0, 0, 0, 0.8),
+    -6px -6px 14px rgba(255, 255, 255, 0.06);
+}
+.nav-link {
+  text-decoration: none;
+}
+
+.nav-link:hover .icon {
+  transform: scale(1.2);
+}
+.nav-link.active .icon {
+  transform: scale(1.6);
+  box-shadow:
+    inset 6px 6px 12px rgba(0, 0, 0, 0.9),
+    inset -6px -6px 12px rgba(255, 255, 255, 0.05);
+}
+#header.shrink .icon {
+  transform: scale(0.8);
+}
+#header.shrink .nav-link.active .icon {
+  transform: scale(1.2);
+}
+#header.shrink .nav-link.active:hover .icon {
+  transform: scale(1.2);
+}
+#header.shrink .nav-link:hover .icon {
+  transform: scale(1);
+}
+
+.icon:hover{
+  background: #2e2e2e;
+}
+#header.shrink {
+  padding: 16px 5px 8px 5px;
+}
+#header.shrink .icon {
+  width: 90px;
+  height: 90px;
+}
