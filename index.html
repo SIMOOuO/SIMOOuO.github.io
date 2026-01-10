@@ -17,6 +17,38 @@
     <body>
         <div id="header"></div><!--get header-->
 
+        <!--disclaimer-->
+        <div id="disclaimerModal" class="modal-overlay">
+            <div class="modal-box">
+                <div class="modal-header">
+                    <h3>Disclaimer | 免责声明</h3>
+                        <button class="close-btn" id="closeModal">×</button>
+                    </div>
+
+                    <div class="modal-body">
+                        <p>
+                            This website is intended for personal learning and interest purposes only
+                            and does not contain any commercial promotion.
+                            Please review the applicable licenses before using any resources.
+                            The website is not responsible for any consequences resulting from improper use.
+                        </p>
+                        <p>
+                            本网站为个人学习与兴趣展示用途，不包含任何商业推广内容。
+                            所有资源请在使用前自行确认授权许可。
+                            因错误使用所产生的后果，本站概不负责。
+                        </p>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button id="acceptDisclaimer" class="btn-primary">
+                            I Understand! Do Not Show Again | 我知道了！不再提醒
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!--audio-->
         <div class="index-container">
             <audio id="myAudio">
                 <source src="audio/001.mp3" type="audio/mp3">
