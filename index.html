@@ -48,19 +48,21 @@
             </div>
         </div>
 
-        <!--audio-->
         <div class="index-container">
+            <div class="category-tabs">
+                <button class="tab active" data-category="all">All</button>
+                <button class="tab" data-category="Tool">Tool</button>
+                <button class="tab" data-category="Study">Study</button>
+                <button class="tab" data-category="Game">Game</button>
+                <button class="tab" data-category="Other">Other</button>
+            </div>
+            <!--cards-->
+            <div class="tools-wrapper" id="toolsWrapper"></div>
+
+            <!--audio-->
             <audio id="myAudio">
                 <source src="audio/001.mp3" type="audio/mp3">
             </audio>
-
-            <section>
-                <img src="image/test.jpg" class="test">
-                <img src="image/test.jpg" class="test">
-                <img src="image/test.jpg" class="test">
-                <img src="image/test.jpg" class="test">
-                <img src="image/test.jpg" class="test">
-            </section>
         </div>
 
         <!--scroll top-->
@@ -70,6 +72,7 @@
 
         <div id="footer"></div><!--get footer-->
 
+        <script src="js/index.js"></script><!--get script-->
         <script src="js/header-footer.js"></script><!--get script-->
         
     </body>
