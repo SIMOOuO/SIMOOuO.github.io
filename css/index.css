@@ -130,6 +130,23 @@ body {
   justify-content: center;
   gap: 16px;
   margin: 40px 0 30px;
+  position: relative;
+  padding-bottom: 16px;
+}
+.category-tabs::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
+  width: 90%;
+  height: 2px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgba(0,0,0,0.3),
+    transparent
+  );
 }
 
 .tab {
