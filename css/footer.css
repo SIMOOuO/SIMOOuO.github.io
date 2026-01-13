@@ -151,3 +151,113 @@ footer p{
         padding: 5px 0;
     }
 }
+
+/* =========================
+   MOBILE FIX (Phones)
+   ========================= */
+@media (max-width: 600px) {
+
+  /* ===== BODY ===== */
+  body {
+    justify-content: flex-start;
+    min-height: auto;
+  }
+
+  /* ===== HEADER ===== */
+  #header {
+    font-size: 32px;
+    padding: 14px 8px;
+  }
+
+  #header.shrink {
+    padding: 10px 6px;
+  }
+
+  /* icons in header */
+  .icon {
+    width: 56px;
+    height: 56px;
+  }
+
+  #header.shrink .icon {
+    width: 48px;
+    height: 48px;
+  }
+
+  .nav-link.active .icon {
+    transform: scale(1.2);
+  }
+
+  /* ===== MAIN CONTENT ===== */
+  .index-container {
+    margin-top: 120px;
+    font-size: 18px;
+    text-align: center;
+    padding: 0 12px;
+  }
+
+  /* ===== CATEGORY TABS ===== */
+  .category-tabs {
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 20px 10px;
+  }
+
+  .tab {
+    font-size: 13px;
+    padding: 8px 14px;
+  }
+
+  /* ===== TOOLS GRID ===== */
+  .tools-wrapper {
+    grid-template-columns: 1fr;
+    padding: 0 12px;
+    margin-bottom: 120px;
+  }
+
+  .tool-card {
+    height: auto;
+  }
+
+  /* show description without hover */
+  .tool-description {
+    opacity: 1;
+    max-height: none;
+  }
+
+  /* ===== PROFILE / FOOTER ===== */
+  .profile {
+    width: 100%;
+    max-width: 340px;
+    flex-direction: column;
+    text-align: center;
+    padding: 16px;
+  }
+
+  .avatar {
+    width: 80px;
+    height: 80px;
+  }
+
+  footer {
+    padding: 30px 20px;
+  }
+
+  footer .footer-container .sec.aboutme,
+  .contactme {
+    width: 100%;
+  }
+
+  /* ===== FIX HARD WIDTHS ===== */
+  .test {
+    width: 100%;
+  }
+
+  /* ===== SCROLL TO TOP BUTTON ===== */
+  #myBtn {
+    right: 16px;
+    bottom: 16px;
+  }
+}
+
+
