@@ -1,0 +1,48 @@
+/*===== 404 PAGE ======*/
+.error-body {
+  height: 100vh;
+  background: gainsboro;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.error-box {
+  background: gainsboro;
+  padding: 40px 50px;
+  border-radius: 20px;
+  text-align: center;
+  box-shadow:
+    10px 10px 20px #b8b8b8,
+    -10px -10px 20px #ffffff;
+}
+
+.error-box h1 {
+  font-size: 80px;
+  color: #222;
+}
+
+.error-box p {
+  margin: 10px 0 30px;
+  font-size: 16px;
+  color: #666;
+}
+
+.error-btn {
+  display: inline-block;
+  padding: 10px 22px;
+  border-radius: 14px;
+  background: gainsboro;
+  color: #333;
+  text-decoration: none;
+  box-shadow:
+    6px 6px 12px #b8b8b8,
+    -6px -6px 12px #ffffff;
+}
+
+.error-btn:hover {
+  box-shadow:
+    inset 4px 4px 8px #b8b8b8,
+    inset -4px -4px 8px #ffffff;
+}
+
