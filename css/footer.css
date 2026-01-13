@@ -18,7 +18,7 @@ footer{
     border-top-right-radius: 20px;
     border-bottom-right-radius: 20px;
     border-bottom-left-radius: 20px;
-    box-shadow: 0 0 10px black;
+    box-shadow: 0 0 20px black;
 }
 .avatar {
     width: 100px;
@@ -134,7 +134,6 @@ footer p{
 .disclaimer-btn:hover {
     color: #0056b3;
 }
-
 
 @media (max-width: 991px){
     footer{
@@ -259,5 +258,3 @@ footer p{
     bottom: 16px;
   }
 }
-
-
