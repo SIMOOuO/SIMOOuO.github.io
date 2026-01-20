@@ -1,0 +1,130 @@
+/* ===== FIX HEADER OVERLAP ===== */
+body {
+  padding-top: 200px;
+}
+
+@media (max-width: 768px) {
+  body {
+    padding-top: 140px;
+  }
+}
+
+/* ===== GAME PAGE ===== */
+.game-section {
+  max-width: 1200px;
+  margin: 0 auto 140px;
+  padding: 0 20px;
+  text-align: center;
+}
+
+.game-title {
+  font-size: 32px;
+  color: #222;
+  margin-bottom: 8px;
+}
+
+.game-subtitle {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 50px;
+}
+
+/* ===== GRID ===== */
+.game-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 36px;
+}
+
+/* ===== CARD ===== */
+.game-card {
+  position: relative;
+  background: gainsboro;
+  border-radius: 26px;
+  padding: 22px;
+  box-shadow:
+    14px 14px 28px #b8b8b8,
+    -14px -14px 28px #ffffff;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.game-card:hover {
+  transform: translateY(-6px);
+  box-shadow:
+    10px 10px 22px #b0b0b0,
+    -10px -10px 22px #ffffff;
+}
+
+/* ===== TAG ===== */
+.game-tag {
+  position: absolute;
+  top: 18px;
+  left: 18px;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  padding: 6px 12px;
+  border-radius: 14px;
+  background: gainsboro;
+  color: #444;
+  box-shadow:
+    4px 4px 8px #b8b8b8,
+    -4px -4px 8px #ffffff;
+  z-index: 2;
+}
+
+/* ===== VIDEO ===== */
+.game-video {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  min-height: 220px;
+  border-radius: 20px;
+  overflow: hidden;
+  margin-bottom: 16px;
+  box-shadow:
+    inset 6px 6px 12px #b8b8b8,
+    inset -6px -6px 12px #ffffff;
+}
+.game-video video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* ===== DIVIDER ===== */
+.section-divider {
+  position: relative;
+  z-index: 3;
+  width: 100%;
+  height: 1px;
+  margin: 40px auto;
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgba(0, 0, 0, 0.35),
+    transparent
+  );
+  border-radius: 2px;
+}
+
+/* ===== MOBILE ===== */
+@media (max-width: 768px) {
+  .game-grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  .game-title {
+    font-size: 24px;
+  }
+  .game-subtitle {
+    font-size: 13px;
+  }
+  .game-video {
+    min-height: 200px;
+  }
+  .game-card {
+    padding: 16px;
+    border-radius: 22px;
+  }
+}
