@@ -49,6 +49,16 @@
         </div>
 
         <div class="index-container">
+            <!-- Search Bar -->
+            <div id="searchContainer" class="search-container">
+                <input
+                    type="text"
+                    id="searchInput"
+                    placeholder="Search tools, games, study..."
+                    autocomplete="off"
+                >
+            </div>
+
             <div class="category-tabs">
                 <button class="tab active" data-category="all">All</button>
                 <button class="tab" data-category="Tool">Tool</button>
@@ -64,6 +74,11 @@
                 <source src="audio/001.mp3" type="audio/mp3">
             </audio>
         </div>
+
+        <!--search button-->
+        <button id="searchBtn" title="Search">
+            <img src="image/search.png" alt="search" class="icon-top">
+        </button>
 
         <!--scroll top-->
         <button onclick="topFunction()" id="myBtn" title="Go to top">
