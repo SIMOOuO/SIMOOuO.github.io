@@ -251,10 +251,4 @@ footer p{
   .test {
     width: 100%;
   }
-
-  /* ===== SCROLL TO TOP BUTTON ===== */
-  #myBtn {
-    right: 16px;
-    bottom: 16px;
-  }
 }
