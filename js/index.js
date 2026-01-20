@@ -73,7 +73,7 @@ const toolsData = [
         title: "Design Tool(Online PS)",
         name: "Gaoding PS",
         category: "Tool",
-        url: "https://ps.gaoding.com/#/",
+        url: "https://ps.gaoding.com/",
         description: "Online photo editing and design tools."
     },
     {
@@ -390,6 +390,83 @@ const toolsData = [
         category: "Study",
         url: "https://www.lksamyang.com/en/product/simulator/lens.php",
         description: "Simulate camera lenses and focal lengths."
+    },
+    {
+        title: "Build Website (AI)",
+        name: "Atoms.dev",
+        category: "tool",
+        url: "https://atoms.dev/",
+        description: "A curated collection of ready-to-use web components and front-end tools for faster development."
+    },
+    {
+        title: "Music Rhythm Game",
+        name: "Rhythm Plus",
+        category: "game",
+        url: "https://rhythm-plus.com/",
+        description: "Create, analyze, and practice musical rhythms with an interactive online game."
+    },
+    {
+        title: "Indie Game Platform",
+        name: "Itch.io",
+        category: "game",
+        url: "https://itch.io/",
+        description: "Discover, play, and distribute indie games from creators around the world."
+    },
+    {
+        title: "High-Quality Wallpapers",
+        name: "Wallhaven.cc",
+        category: "other",
+        url: "https://wallhaven.cc/",
+        description: "Browse and download a massive collection of high-resolution wallpapers for desktop and mobile."
+    },
+    {
+        title: "Create Music (AI)",
+        name: "Suno.com",
+        category: "tool",
+        url: "https://suno.com/",
+        description: "Generate and manipulate audio using AI-powered music and sound tools."
+    },
+    {
+        title: "Steam Game Database",
+        name: "SteamDB.info",
+        category: "tool",
+        url: "https://steamdb.info/",
+        description: "Explore Steam game data, track updates, prices history, discord, sales, and analytics for all Steam titles."
+    },
+    {
+        title: "Tons of Tools (mandarin)",
+        name: "Gaituya",
+        category: "tool",
+        url: "https://www.gaituya.com/",
+        description: "An online platform given tons of tools like zip, convert, fix picture, ai draw."
+    },
+    {
+        title: "Generate Name (mandarin)",
+        name: "QMSJMFB Chengyu",
+        category: "tool",
+        url: "https://www.qmsjmfb.com/chengyu.php",
+        description: "generate chinese name and Search and learn Chinese idioms (chengyu) with explanations and examples."
+    },
+    {
+        title: "Move your Mouse",
+        name: "Pointer Pointer",
+        category: "other",
+        url: "https://pointerpointer.com/",
+        description: "Move your cursor and see a random image of someone pointing exactly at it."
+    },
+    {
+        title: "Anime Screenshot Finder",
+        name: "Trace.moe",
+        category: "tool",
+        url: "https://trace.moe/",
+        description: "Identify anime titles by uploading a screenshot or image from the show."
+    },
+    {
+        title: "Remove Vocals from Music",
+        name: "VocalRemover.org",
+        category: "tool",
+        url: "https://vocalremover.org/",
+        description: "Easily remove vocals or isolate instruments from songs using an online AI tool."
     }
 ];
 
@@ -462,23 +539,7 @@ searchInput.addEventListener("input", function() {
     filterCards(this.value);
 });
 
-//---------scroll top functional---------
-// Get the button:
-let mybutton = document.getElementById("myBtn");
 
-// When the user scrolls down 50px from the top of the document, show the button
-window.onscroll = function() {scrollFunction()};
 
-function scrollFunction() {
-  if (document.body.scrollTop > 50 || document.documentElement.scrollTop > 50) {
-    mybutton.style.display = "block";
-  } else {
-    mybutton.style.display = "none";
-  }
-}
 
-// When the user clicks on the button, scroll to the top of the document
-function topFunction() {
-  document.body.scrollTop = 0;
-  document.documentElement.scrollTop = 0;
-}
+
