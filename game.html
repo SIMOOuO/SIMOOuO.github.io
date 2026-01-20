@@ -1,30 +1,63 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>SIMO_GAME</title>
-        <!--main style-->
-        <link rel="stylesheet" href="/css/index.css">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SIMO_TOOL</title>
+    <!--main style-->
+    <link rel="stylesheet" href="/css/index.css">
+    <!--header style-->
+    <link rel="stylesheet" href="/css/header.css">
+    <!--footer style-->
+    <link rel="stylesheet" href="/css/footer.css">
+    <!--404 page style-->
+    <link rel="stylesheet" href="/css/404.css">
 
-        <!--header style-->
-        <link rel="stylesheet" href="/css/header.css">
+    <!-- game page style -->
+    <link rel="stylesheet" href="/css/game.css">
+</head>
 
-        <!--footer style-->
-        <link rel="stylesheet" href="/css/footer.css">
-    </head>
+<body>
 
-    <body>
-        <div id="header"></div><!--get header-->
+    <!-- HEADER -->
+    <div id="header"></div>
 
-        <!--scroll top-->
-        <button onclick="topFunction()" id="myBtn" title="Go to top">
-            <img src="image/top.png" alt="go top" class="icon-top">
-        </button>
+    <!-- GAME SECTION -->
+    <section class="game-section">
 
-        <div id="footer"></div><!--get footer-->
+        <div class="section-divider"></div>
+        <h2 class="game-title">Game Replay</h2>
+        <div class="game-grid">
 
-        <script src="js/header-footer.js"></script><!--get script-->
-        
-    </body>
+            <!-- CARD 1 -->
+            <article class="game-card">
+                <span class="game-tag">Street Fighter 6</span>
+
+                <div class="game-video">
+                    <video controls preload="metadata">
+                        <source src="video/SF6_01.mp4" type="video/mp4">
+                    </video>
+                </div>
+            </article>
+
+            <!-- CARD 2 -->
+            <article class="game-card">
+                <span class="game-tag">Street Fighter 6</span>
+
+                <div class="game-video">
+                    <video controls preload="metadata">
+                        <source src="video/SF6_02.mp4" type="video/mp4">
+                    </video>
+                </div>
+            </article>
+
+        </div>
+        <div class="section-divider"></div>
+    </section>
+
+    <!-- FOOTER -->
+    <div id="footer"></div>
+
+    <script src="js/header-footer.js"></script>
+</body>
 </html>
