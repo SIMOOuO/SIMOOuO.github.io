@@ -432,3 +432,53 @@ tabs.forEach(tab => {
 });
 
 renderTools();
+
+// --- Search bar ---
+const searchBtn = document.getElementById("searchBtn");
+const searchContainer = document.getElementById("searchContainer");
+const searchInput = document.getElementById("searchInput");
+
+// Toggle search bar
+searchBtn.addEventListener("click", () => {
+    searchContainer.classList.toggle("active");
+    if(searchContainer.classList.contains("active")) {
+        setTimeout(() => searchInput.focus(), 100);
+    } else {
+        searchInput.value = "";
+        filterCards(""); // reset filter
+    }
+});
+
+// Filter function
+function filterCards(keyword) {
+    keyword = keyword.toLowerCase();
+    document.querySelectorAll(".tool-card").forEach(card => {
+        card.style.display = card.innerText.toLowerCase().includes(keyword) ? "block" : "none";
+    });
+}
+
+// Filter cards as user types
+searchInput.addEventListener("input", function() {
+    filterCards(this.value);
+});
+
+//---------scroll top functional---------
+// Get the button:
+let mybutton = document.getElementById("myBtn");
+
+// When the user scrolls down 50px from the top of the document, show the button
+window.onscroll = function() {scrollFunction()};
+
+function scrollFunction() {
+  if (document.body.scrollTop > 50 || document.documentElement.scrollTop > 50) {
+    mybutton.style.display = "block";
+  } else {
+    mybutton.style.display = "none";
+  }
+}
+
+// When the user clicks on the button, scroll to the top of the document
+function topFunction() {
+  document.body.scrollTop = 0;
+  document.documentElement.scrollTop = 0;
+}
