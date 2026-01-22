@@ -510,21 +510,81 @@ tabs.forEach(tab => {
 
 renderTools();
 
-// --- Search bar ---
+//search function
 const searchBtn = document.getElementById("searchBtn");
-const searchContainer = document.getElementById("searchContainer");
+const searchDrawer = document.getElementById("searchDrawer");
 const searchInput = document.getElementById("searchInput");
 
-// Toggle search bar
 searchBtn.addEventListener("click", () => {
-    searchContainer.classList.toggle("active");
-    if(searchContainer.classList.contains("active")) {
-        setTimeout(() => searchInput.focus(), 100);
-    } else {
+  const isActive = searchDrawer.classList.contains("active");
+
+  if (!isActive) {
+    setTimeout(() => {
+      searchDrawer.classList.add("active");
+      searchInput.focus();
+      updateSearchOffset();
+    }, 300);
+  } else {
+    searchDrawer.classList.remove("active");
+    searchInput.value = "";
+  }
+});
+
+
+// close when clicking outside
+document.addEventListener("click", (e) => {
+    if (
+        searchDrawer.classList.contains("active") &&
+        !searchDrawer.contains(e.target) &&
+        e.target !== searchBtn
+    ) {
+        searchDrawer.classList.remove("active");
         searchInput.value = "";
-        filterCards(""); // reset filter
     }
 });
+
+// Smooth search drawer positioning
+function updateSearchOffset() {
+  const header = document.getElementById("header");
+  const drawer = document.getElementById("searchDrawer");
+
+  if (!header || !drawer) return;
+
+  const gap = 10;       // normal gap
+  const extraGap = 20;  // extra gap when at top
+  const headerHeight = header.offsetHeight;
+
+  // Check if user is at the very top of the page
+  const atTop = window.scrollY === 0;
+
+  let offset;
+
+  if (header.classList.contains("hide-header")) {
+    // header hidden → minimal gap
+    offset = gap;
+  } else if (atTop) {
+    // user at top → add extra gap
+    offset = headerHeight + gap + extraGap;
+  } else if (!header.classList.contains("shrink")) {
+    // header fully expanded → normal header height + gap
+    offset = headerHeight + gap;
+  } else {
+    // header shrunk → normal gap
+    offset = headerHeight + gap;
+  }
+
+  document.documentElement.style.setProperty("--header-offset", offset + "px");
+}
+
+// Listeners
+window.addEventListener("scroll", updateSearchOffset);
+window.addEventListener("resize", updateSearchOffset);
+window.addEventListener("load", updateSearchOffset);
+// Optional: initialize after a small delay for page load
+setTimeout(() => {
+  updateSearchOffset();
+}, 300);
+
 
 // Filter function
 function filterCards(keyword) {
@@ -538,6 +598,7 @@ function filterCards(keyword) {
 searchInput.addEventListener("input", function() {
     filterCards(this.value);
 });
+
 
 
 
