@@ -17,6 +17,18 @@
     <body>
         <div id="header"></div><!--get header-->
 
+        <!-- Search Drawer -->
+        <div id="searchDrawer">
+            <div id="searchContainer" class="search-container">
+                <input
+                    type="text"
+                    id="searchInput"
+                    placeholder="Search tools, games, study..."
+                    autocomplete="off"
+                >
+            </div>
+        </div>
+
         <!--disclaimer-->
         <div id="disclaimerModal" class="modal-overlay">
             <div class="modal-box">
@@ -49,16 +61,6 @@
         </div>
 
         <div class="index-container">
-            <!-- Search Bar -->
-            <div id="searchContainer" class="search-container">
-                <input
-                    type="text"
-                    id="searchInput"
-                    placeholder="Search tools, games, study..."
-                    autocomplete="off"
-                >
-            </div>
-
             <div class="category-tabs">
                 <button class="tab active" data-category="all">All</button>
                 <button class="tab" data-category="Tool">Tool</button>
