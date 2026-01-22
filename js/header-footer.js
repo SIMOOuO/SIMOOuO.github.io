@@ -16,14 +16,34 @@ loadHTML("footer", "footer.html").then(() => {
 });
 
 //---------header---------
+// base header height
+const BASE_HEADER_HEIGHT = 80; // px, adjust if needed
+
 window.addEventListener("scroll", () => {
   const header = document.getElementById("header");
+  const currentScroll = window.pageYOffset || document.documentElement.scrollTop;
 
-  if (window.scrollY > 50) {
+  // Shrink header if near top
+  if (currentScroll > 50) {
     header.classList.add("shrink");
   } else {
     header.classList.remove("shrink");
   }
+
+  //HIDDEN
+  // Hide/show header on scroll direction
+  let lastScrollTop = header.dataset.lastScrollTop || 0;
+  lastScrollTop = parseInt(lastScrollTop, 10);
+
+  if (currentScroll > lastScrollTop && currentScroll > 100) {
+    // scrolling down → hide header
+    header.classList.add("hide-header");
+  } else {
+    // scrolling up → show header
+    header.classList.remove("hide-header");
+  }
+
+  header.dataset.lastScrollTop = currentScroll <= 0 ? 0 : currentScroll;
 });
 
 //get active
@@ -40,13 +60,6 @@ function setActiveNav() {
     }
   });
 }
-
-fetch("header.html")
-  .then(res => res.text())
-  .then(data => {
-    document.getElementById("header").innerHTML = data;
-    setActiveNav();
-  });
 
 //wave effect
 document.addEventListener("DOMContentLoaded", () => {
