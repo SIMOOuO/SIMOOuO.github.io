@@ -6,13 +6,16 @@
   position: fixed;
   top: 0;
   width: 100%;
-  transition: 1s;
+  transition: transform 0.4s ease, padding 0.4s ease;
   z-index: 1000;
   display: flex;
   justify-content: center;
   align-items: center;
   overflow: hidden;
   box-shadow: 0 0 10px black;
+}
+#header.hide-header {
+  transform: translateY(-100%);
 }
 .wave {
   position: absolute;
