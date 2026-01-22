@@ -598,9 +598,3 @@ function filterCards(keyword) {
 searchInput.addEventListener("input", function() {
     filterCards(this.value);
 });
-
-
-
-
-
-
