@@ -363,24 +363,62 @@ const toolsData = [
     }
   }
 
+  // Reset category buttons
+  function resetCatBtns() {
+    catBtns.forEach(b => b.classList.remove('active'));
+  }
+
+  // Load random recipes on page load
+  async function loadRandomRecipes(count = 12) {
+    showLoading();
+    try {
+      const promises = Array.from({ length: count }, () =>
+        fetch(API + '/random.php').then(r => r.json())
+      );
+      const results = await Promise.all(promises);
+      const meals = results
+        .filter(r => r.meals && r.meals[0])
+        .map(r => r.meals[0]);
+      clearStatus();
+      if (meals.length > 0) renderRecipeCards(meals);
+      else showStatus('Click Search or pick a category to find recipes.');
+    } catch (e) {
+      clearStatus();
+      showStatus('Click Search or pick a category to find recipes.');
+    }
+  }
+
   // Event listeners
   searchBtn.addEventListener('click', () => {
     const q = input.value.trim();
-    if (q) searchRecipes(q);
+    if (q) {
+      resetCatBtns();
+      searchRecipes(q);
+    }
   });
 
   input.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') {
       const q = input.value.trim();
-      if (q) searchRecipes(q);
+      if (q) {
+        resetCatBtns();
+        searchRecipes(q);
+      }
     }
   });
 
   catBtns.forEach(btn => {
     btn.addEventListener('click', () => {
-      catBtns.forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      searchByArea(btn.dataset.area);
+      if (btn.classList.contains('active')) {
+        // Clicking active button → deselect and reload random
+        btn.classList.remove('active');
+        input.value = '';
+        loadRandomRecipes(12);
+      } else {
+        catBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        searchByArea(btn.dataset.area);
+      }
     });
   });
 
@@ -390,6 +428,9 @@ const toolsData = [
       if (e.target === modal) modal.classList.remove('open');
     });
   }
+
+  // Load random recipes on init
+  loadRandomRecipes(12);
 })();
 // ---- Disclaimer Modal ----
 (function initDisclaimer() {
