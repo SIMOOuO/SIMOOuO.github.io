@@ -250,6 +250,7 @@ const toolsData = [
   const grid = document.getElementById('recipeGrid');
   const status = document.getElementById('recipeStatus');
   const catBtns = document.querySelectorAll('.recipe-cat-btn');
+  const mealCatBtns = document.querySelectorAll('.meal-cat-btn');
   const modal = document.getElementById('recipeModal');
   const modalContent = document.getElementById('recipeModalContent');
   const modalClose = document.getElementById('recipeModalClose');
@@ -257,6 +258,8 @@ const toolsData = [
   if (!input || !grid) return;
 
   const API = 'https://www.themealdb.com/api/json/v1/1';
+  let selectedMealCategory = null;
+  let currentCuisine = null;
 
   function showLoading() {
     grid.innerHTML = '';
@@ -286,12 +289,75 @@ const toolsData = [
 
   async function searchByArea(area) {
     showLoading();
+    currentCuisine = area;
     try {
       const res = await fetch(API + '/filter.php?a=' + encodeURIComponent(area));
       const data = await res.json();
       clearStatus();
       if (!data.meals) { showStatus('No recipes found for ' + area); return; }
-      renderRecipeCards(data.meals.slice(0, 20));
+      
+      let meals = data.meals;
+      
+      // If a meal category is selected, filter by it
+      if (selectedMealCategory) {
+        meals = await filterByMealCategory(meals);
+      }
+      
+      if (meals.length === 0) {
+        showStatus('No recipes match your filters.');
+        return;
+      }
+      
+      renderRecipeCards(meals.slice(0, 20));
+    } catch (e) {
+      clearStatus();
+      showStatus('Error fetching recipes. Please try again.');
+    }
+  }
+
+  // Filter meals by selected meal category
+  async function filterByMealCategory(meals) {
+    if (!selectedMealCategory) return meals;
+    
+    const results = [];
+    
+    // Check each meal's category
+    for (const meal of meals) {
+      const detail = await fetch(API + '/lookup.php?i=' + meal.idMeal)
+        .then(r => r.json())
+        .catch(() => null);
+      
+      if (detail && detail.meals && detail.meals[0]) {
+        const mealCategory = detail.meals[0].strCategory;
+        if (mealCategory === selectedMealCategory) {
+          results.push(meal);
+        }
+      }
+    }
+    
+    return results;
+  }
+
+  // Search by meal category only (without cuisine)
+  async function searchByMealCategory() {
+    if (!selectedMealCategory) {
+      loadRandomRecipes(12);
+      return;
+    }
+    
+    showLoading();
+    
+    try {
+      const res = await fetch(API + '/filter.php?c=' + encodeURIComponent(selectedMealCategory));
+      const data = await res.json();
+      clearStatus();
+      
+      if (!data.meals || data.meals.length === 0) {
+        showStatus('No recipes found for ' + selectedMealCategory + '.');
+        return;
+      }
+      
+      renderRecipeCards(data.meals.slice(0, 24));
     } catch (e) {
       clearStatus();
       showStatus('Error fetching recipes. Please try again.');
@@ -363,11 +429,6 @@ const toolsData = [
     }
   }
 
-  // Reset category buttons
-  function resetCatBtns() {
-    catBtns.forEach(b => b.classList.remove('active'));
-  }
-
   // Load random recipes on page load
   async function loadRandomRecipes(count = 12) {
     showLoading();
@@ -388,11 +449,25 @@ const toolsData = [
     }
   }
 
+  // Reset all filters
+  function resetAllFilters() {
+    catBtns.forEach(b => b.classList.remove('active'));
+    mealCatBtns.forEach(b => b.classList.remove('active'));
+    selectedMealCategory = null;
+    currentCuisine = null;
+  }
+
+  // Reset meal category buttons
+  function resetMealCatBtns() {
+    mealCatBtns.forEach(b => b.classList.remove('active'));
+    selectedMealCategory = null;
+  }
+
   // Event listeners
   searchBtn.addEventListener('click', () => {
     const q = input.value.trim();
     if (q) {
-      resetCatBtns();
+      resetAllFilters();
       searchRecipes(q);
     }
   });
@@ -401,23 +476,60 @@ const toolsData = [
     if (e.key === 'Enter') {
       const q = input.value.trim();
       if (q) {
-        resetCatBtns();
+        resetAllFilters();
         searchRecipes(q);
       }
     }
   });
 
+  // Cuisine buttons (single select, toggleable)
   catBtns.forEach(btn => {
     btn.addEventListener('click', () => {
       if (btn.classList.contains('active')) {
         // Clicking active button → deselect and reload random
         btn.classList.remove('active');
+        currentCuisine = null;
         input.value = '';
-        loadRandomRecipes(12);
+        // If a meal category is selected, keep it
+        if (selectedMealCategory) {
+          searchByMealCategory();
+        } else {
+          loadRandomRecipes(12);
+        }
       } else {
         catBtns.forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
+        currentCuisine = btn.dataset.area;
+        input.value = '';
         searchByArea(btn.dataset.area);
+      }
+    });
+  });
+
+  // Meal category buttons (single select)
+  mealCatBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (btn.classList.contains('active')) {
+        // Deselect
+        btn.classList.remove('active');
+        selectedMealCategory = null;
+      } else {
+        // Select (single select - deselect others)
+        mealCatBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        selectedMealCategory = btn.dataset.meal;
+      }
+      
+      // Reset search input and cuisine
+      input.value = '';
+      catBtns.forEach(b => b.classList.remove('active'));
+      currentCuisine = null;
+      
+      // Search based on current state
+      if (!selectedMealCategory) {
+        loadRandomRecipes(12);
+      } else {
+        searchByMealCategory();
       }
     });
   });
