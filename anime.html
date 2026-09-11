@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Games — SIMO</title>
+    <title>Anime — SIMO</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -15,8 +15,8 @@
                 <a href="index.html">Home</a>
                 <a href="tools.html">Tools</a>
                 <a href="food.html">Recipe Finder</a>
-                <a href="anime.html">Anime</a>
-                <a href="game.html" class="active">Games</a>
+                <a href="anime.html" class="active">Anime</a>
+                <a href="game.html">Games</a>
                 <a href="about.html">About</a>
             </div>
             <div class="nav-actions">
@@ -32,32 +32,47 @@
 
     <!-- Header -->
     <section class="page-header">
-        <h1>Game Replay</h1>
-        <p>Highlights and clips from my gaming sessions.</p>
+        <h1>Anime Explorer</h1>
+        <p>Search anime or browse top rated. Powered by Jikan (MyAnimeList).</p>
     </section>
 
-    <!-- Game Grid -->
-    <section class="game-grid">
-        <article class="game-card">
-            <div class="game-video">
-                <iframe src="https://www.youtube.com/embed/iFQ22ZAwzZw" title="Street Fighter 6" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-            </div>
-            <div class="game-card-body">
-                <div class="game-card-tag">Street Fighter 6</div>
-                <div class="game-card-title">Match Highlights</div>
-            </div>
-        </article>
+    <!-- Anime Section -->
+    <section class="anime-section">
+        <!-- Search Bar -->
+        <div class="anime-search-bar">
+            <input type="text" id="animeInput" class="api-input anime-input" placeholder="Search anime by name...">
+            <button id="animeSearchBtn" class="api-btn">Search</button>
+        </div>
 
-        <article class="game-card">
-            <div class="game-video">
-                <iframe src="https://www.youtube.com/embed/8Zdn3tGNgag" title="Street Fighter 6" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-            </div>
-            <div class="game-card-body">
-                <div class="game-card-tag">Street Fighter 6</div>
-                <div class="game-card-title">Combo Showcase</div>
-            </div>
-        </article>
+        <!-- Genre Tabs -->
+        <div class="anime-genres" id="animeGenres">
+            <button class="anime-gen-btn active" data-genre="">Top Rated</button>
+            <button class="anime-gen-btn" data-genre="1">Action</button>
+            <button class="anime-gen-btn" data-genre="2">Adventure</button>
+            <button class="anime-gen-btn" data-genre="4">Comedy</button>
+            <button class="anime-gen-btn" data-genre="8">Drama</button>
+            <button class="anime-gen-btn" data-genre="10">Fantasy</button>
+            <button class="anime-gen-btn" data-genre="7">Mystery</button>
+            <button class="anime-gen-btn" data-genre="22">Romance</button>
+            <button class="anime-gen-btn" data-genre="24">Sci-Fi</button>
+            <button class="anime-gen-btn" data-genre="36">Slice of Life</button>
+            <button class="anime-gen-btn" data-genre="30">Sports</button>
+            <button class="anime-gen-btn" data-genre="37">Supernatural</button>
+        </div>
+
+        <!-- Status -->
+        <div id="animeStatus"></div>
+
+        <!-- Anime Grid -->
+        <div class="anime-grid" id="animeGrid"></div>
     </section>
+
+    <!-- Anime Detail Modal -->
+    <div class="anime-modal" id="animeModal">
+        <div class="anime-modal-content" id="animeModalContent">
+            <button class="recipe-modal-close" id="animeModalClose">×</button>
+        </div>
+    </div>
 
     <!-- Footer -->
     <footer class="footer">

@@ -578,3 +578,764 @@ const toolsData = [
   const audio = document.getElementById('myAudio');
   if (audio) audio.style.display = 'none';
 })();
+
+// ---- Weather API (Open-Meteo) ----
+(function initWeather() {
+  const widget = document.getElementById('weatherWidget');
+  const content = document.getElementById('weatherContent');
+  const tempEl = document.getElementById('weatherTemp');
+  const descEl = document.getElementById('weatherDesc');
+  const iconEl = document.getElementById('weatherIcon');
+  const locEl = document.getElementById('weatherLocation');
+  const cityInput = document.getElementById('weatherCityInput');
+  const searchBtn = document.getElementById('weatherSearchBtn');
+  
+  if (!widget) return;
+  
+  const weatherCodes = {
+    0: { icon: '☀️', desc: 'Clear sky' },
+    1: { icon: '🌤️', desc: 'Mainly clear' },
+    2: { icon: '⛅', desc: 'Partly cloudy' },
+    3: { icon: '☁️', desc: 'Overcast' },
+    45: { icon: '🌫️', desc: 'Fog' },
+    48: { icon: '🌫️', desc: 'Depositing rime fog' },
+    51: { icon: '🌦️', desc: 'Light drizzle' },
+    53: { icon: '🌦️', desc: 'Moderate drizzle' },
+    55: { icon: '🌦️', desc: 'Dense drizzle' },
+    61: { icon: '🌧️', desc: 'Slight rain' },
+    63: { icon: '🌧️', desc: 'Moderate rain' },
+    65: { icon: '🌧️', desc: 'Heavy rain' },
+    71: { icon: '🌨️', desc: 'Slight snow' },
+    73: { icon: '🌨️', desc: 'Moderate snow' },
+    75: { icon: '🌨️', desc: 'Heavy snow' },
+    80: { icon: '🌦️', desc: 'Slight rain showers' },
+    81: { icon: '🌦️', desc: 'Moderate rain showers' },
+    82: { icon: '🌧️', desc: 'Violent rain showers' },
+    95: { icon: '⛈️', desc: 'Thunderstorm' },
+    96: { icon: '⛈️', desc: 'Thunderstorm with slight hail' },
+    99: { icon: '⛈️', desc: 'Thunderstorm with heavy hail' }
+  };
+  
+  async function getWeather(lat, lon, locationName) {
+    try {
+      const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`);
+      const data = await res.json();
+      
+      const code = data.current_weather.weathercode;
+      const temp = Math.round(data.current_weather.temperature);
+      const weather = weatherCodes[code] || { icon: '🌡️', desc: 'Unknown' };
+      
+      iconEl.textContent = weather.icon;
+      tempEl.textContent = temp + '°C';
+      descEl.textContent = weather.desc;
+      locEl.textContent = locationName;
+      
+      // Save to localStorage
+      localStorage.setItem('weatherCity', locationName);
+      localStorage.setItem('weatherLat', lat);
+      localStorage.setItem('weatherLon', lon);
+      
+      widget.querySelector('.weather-loading').style.display = 'none';
+      content.style.display = 'flex';
+    } catch (e) {
+      console.error('Weather error:', e);
+    }
+  }
+  
+  async function searchCity() {
+    const city = cityInput.value.trim();
+    if (!city) return;
+    
+    widget.querySelector('.weather-loading').style.display = 'flex';
+    content.style.display = 'none';
+    
+    try {
+      const res = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1&language=en`);
+      const data = await res.json();
+      
+      if (data.results && data.results.length > 0) {
+        const result = data.results[0];
+        const name = result.name + (result.country ? ', ' + result.country : '');
+        getWeather(result.latitude, result.longitude, name);
+      } else {
+        alert('City not found. Try another name.');
+        widget.querySelector('.weather-loading').style.display = 'none';
+        content.style.display = 'flex';
+      }
+    } catch (e) {
+      alert('Error searching city. Please try again.');
+      widget.querySelector('.weather-loading').style.display = 'none';
+      content.style.display = 'flex';
+    }
+  }
+  
+  // Search button click
+  if (searchBtn) {
+    searchBtn.addEventListener('click', searchCity);
+  }
+  
+  // Enter key in city input
+  if (cityInput) {
+    cityInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') searchCity();
+    });
+  }
+  
+  // Check localStorage first
+  const savedCity = localStorage.getItem('weatherCity');
+  const savedLat = localStorage.getItem('weatherLat');
+  const savedLon = localStorage.getItem('weatherLon');
+  
+  if (savedCity && savedLat && savedLon) {
+    getWeather(parseFloat(savedLat), parseFloat(savedLon), savedCity);
+    if (cityInput) cityInput.value = savedCity.split(',')[0];
+  } else {
+    // Try to get user location
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        async (pos) => {
+          const { latitude, longitude } = pos.coords;
+          try {
+            const res = await fetch(`https://geocoding-api.open-meteo.com/v1/reverse?latitude=${latitude}&longitude=${longitude}&language=en`);
+            const data = await res.json();
+            const name = data.results && data.results[0] ? data.results[0].name : 'Your Location';
+            getWeather(latitude, longitude, name);
+          } catch (e) {
+            getWeather(latitude, longitude, 'Your Location');
+          }
+        },
+        () => {
+          // Default to London if location denied
+          getWeather(51.5074, -0.1278, 'London');
+        }
+      );
+    } else {
+      // Default to London
+      getWeather(51.5074, -0.1278, 'London');
+    }
+  }
+})();
+
+// ---- Book Search API (Open Library) ----
+(function initBookSearch() {
+  const input = document.getElementById('bookInput');
+  const btn = document.getElementById('bookBtn');
+  const result = document.getElementById('bookResult');
+  
+  if (!input || !btn) return;
+  
+  async function searchBook() {
+    const query = input.value.trim();
+    if (!query) return;
+    
+    result.innerHTML = '<div class="api-result-loading"><div class="recipe-loading-spinner"></div></div>';
+    
+    try {
+      const res = await fetch(`https://openlibrary.org/search.json?q=${encodeURIComponent(query)}&limit=1`);
+      const data = await res.json();
+      
+      if (data.docs && data.docs.length > 0) {
+        const book = data.docs[0];
+        const coverId = book.cover_i;
+        const coverUrl = coverId ? `https://covers.openlibrary.org/b/id/${coverId}-L.jpg` : 'https://via.placeholder.com/120x170?text=No+Cover';
+        
+        // Get more details
+        const author = book.author_name ? book.author_name.slice(0, 3).join(', ') : 'Unknown';
+        const year = book.first_publish_year || 'N/A';
+        const pages = book.number_of_pages_median || book.number_of_pages || 'N/A';
+        const isbn = book.isbn ? book.isbn[0] : 'N/A';
+        const subjects = book.subject ? book.subject.slice(0, 3).join(', ') : 'N/A';
+        const language = book.language ? book.language.join(', ').toUpperCase() : 'N/A';
+        const publisher = book.publisher ? book.publisher[0] : 'N/A';
+        
+        // Build links
+        const olKey = book.key;
+        const olUrl = olKey ? `https://openlibrary.org${olKey}` : '#';
+        const previewUrl = book.has_fulltext ? `https://openlibrary.org${olKey}` : null;
+        
+        result.innerHTML = `
+          <div class="book-card">
+            <img src="${coverUrl}" alt="${book.title}" class="book-cover" onerror="this.src='https://via.placeholder.com/120x170?text=No+Cover'">
+            <div class="book-info">
+              <div class="book-title">${book.title}</div>
+              <div class="book-author">by ${author}</div>
+              <div class="book-meta">
+                <div class="book-meta-item"><strong>Year:</strong> ${year}</div>
+                <div class="book-meta-item"><strong>Pages:</strong> ${pages}</div>
+                <div class="book-meta-item"><strong>Language:</strong> ${language}</div>
+              </div>
+              <div class="book-meta">
+                <div class="book-meta-item"><strong>Publisher:</strong> ${publisher}</div>
+              </div>
+              ${book.first_sentence ? `<div class="book-desc">${book.first_sentence[0]}</div>` : ''}
+              <div class="book-links">
+                <a href="${olUrl}" target="_blank" class="book-link">View on Open Library</a>
+                ${previewUrl ? `<a href="${previewUrl}" target="_blank" class="book-link secondary">Read Preview</a>` : ''}
+              </div>
+            </div>
+          </div>
+        `;
+      } else {
+        result.innerHTML = '<div class="api-result-empty">No books found. Try a different search term.</div>';
+      }
+    } catch (e) {
+      result.innerHTML = '<div class="api-result-error">Error searching books. Please try again.</div>';
+    }
+  }
+  
+  btn.addEventListener('click', searchBook);
+  input.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') searchBook();
+  });
+})();
+
+// ---- Currency Converter API (Frankfurter) ----
+(function initCurrencyConverter() {
+  const amount = document.getElementById('currencyAmount');
+  const from = document.getElementById('currencyFrom');
+  const to = document.getElementById('currencyTo');
+  const result = document.getElementById('currencyResult');
+  
+  if (!amount || !result) return;
+  
+  async function convert() {
+    const amt = parseFloat(amount.value);
+    if (!amt || amt <= 0) {
+      result.textContent = 'Enter amount';
+      return;
+    }
+    
+    const fromCurrency = from.value;
+    const toCurrency = to.value;
+    
+    // If same currency, just show the amount
+    if (fromCurrency === toCurrency) {
+      result.textContent = `${amt.toFixed(2)} ${toCurrency}`;
+      return;
+    }
+    
+    result.textContent = 'Converting...';
+    
+    try {
+      const res = await fetch(`https://api.frankfurter.app/latest?amount=${amt}&from=${fromCurrency}&to=${toCurrency}`);
+      
+      if (!res.ok) {
+        result.textContent = 'Error';
+        return;
+      }
+      
+      const data = await res.json();
+      
+      if (data.rates && data.rates[toCurrency]) {
+        const converted = data.rates[toCurrency].toFixed(2);
+        const rate = (data.rates[toCurrency]).toFixed(4);
+        result.innerHTML = `${converted} <span style="font-size: 12px; color: var(--text-muted);">${toCurrency}</span>`;
+        result.title = `1 ${fromCurrency} = ${rate} ${toCurrency}`;
+      } else {
+        result.textContent = 'No rate available';
+      }
+    } catch (e) {
+      console.error('Currency error:', e);
+      result.textContent = 'Error';
+    }
+  }
+  
+  amount.addEventListener('input', convert);
+  from.addEventListener('change', convert);
+  to.addEventListener('change', convert);
+  
+  // Initial conversion with different currencies
+  if (from && to && from.value === to.value) {
+    to.value = 'EUR';
+  }
+  convert();
+})();
+
+// ---- Pokemon API (PokéAPI) ----
+(function initPokemonSearch() {
+  const input = document.getElementById('pokemonInput');
+  const btn = document.getElementById('pokemonBtn');
+  const result = document.getElementById('pokemonResult');
+  const suggestions = document.getElementById('pokemonSuggestions');
+  
+  if (!input || !btn) return;
+  
+  let pokemonList = [];
+  
+  // Load all Pokemon names for autocomplete
+  async function loadPokemonNames() {
+    try {
+      const res = await fetch('https://pokeapi.co/api/v2/pokemon?limit=1010');
+      const data = await res.json();
+      pokemonList = data.results.map(p => p.name);
+    } catch (e) {
+      console.error('Failed to load Pokemon list');
+    }
+  }
+  
+  // Show autocomplete suggestions
+  function showSuggestions(query) {
+    if (!suggestions || !query) {
+      if (suggestions) suggestions.classList.remove('show');
+      return;
+    }
+    
+    const matches = pokemonList
+      .filter(name => name.startsWith(query.toLowerCase()))
+      .slice(0, 8);
+    
+    if (matches.length === 0) {
+      suggestions.classList.remove('show');
+      return;
+    }
+    
+    suggestions.innerHTML = matches.map(name => {
+      const highlighted = name.replace(new RegExp(`^${query}`, 'i'), `<strong>${query}</strong>`);
+      return `<div class="autocomplete-item" data-name="${name}">${highlighted}</div>`;
+    }).join('');
+    
+    suggestions.classList.add('show');
+    
+    // Click on suggestion
+    suggestions.querySelectorAll('.autocomplete-item').forEach(item => {
+      item.addEventListener('click', () => {
+        input.value = item.dataset.name;
+        suggestions.classList.remove('show');
+        searchPokemon();
+      });
+    });
+  }
+  
+  async function searchPokemon() {
+    const query = input.value.trim().toLowerCase();
+    if (!query) return;
+    
+    if (suggestions) suggestions.classList.remove('show');
+    
+    result.innerHTML = '<div class="api-result-loading"><div class="recipe-loading-spinner"></div></div>';
+    
+    try {
+      const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${query}`);
+      
+      if (!res.ok) {
+        result.innerHTML = '<div class="api-result-error">Pokemon not found. Try a name or number (1-1010)</div>';
+        return;
+      }
+      
+      const data = await res.json();
+      
+      const types = data.types.map(t => t.type.name).join(', ');
+      const stats = data.stats.map(s => `${s.stat.name}: ${s.base_stat}`).join(' | ');
+      const abilities = data.abilities.map(a => a.ability.name).join(', ');
+      
+      result.innerHTML = `
+        <div class="pokemon-card">
+          <img src="${data.sprites.other['official-artwork'].front_default}" alt="${data.name}" class="pokemon-image">
+          <div class="pokemon-info">
+            <div class="pokemon-name">#${data.id} ${data.name}</div>
+            <div class="pokemon-types">
+              ${data.types.map(t => `<span class="pokemon-type">${t.type.name}</span>`).join('')}
+            </div>
+            <div class="pokemon-stats">
+              <strong>Abilities:</strong> ${abilities}<br>
+              <strong>Base Stats:</strong> ${stats}<br>
+              <strong>Height:</strong> ${(data.height / 10).toFixed(1)}m | <strong>Weight:</strong> ${(data.weight / 10).toFixed(1)}kg
+            </div>
+          </div>
+        </div>
+      `;
+      
+      // Save to localStorage
+      const recent = JSON.parse(localStorage.getItem('recentPokemon') || '[]');
+      if (!recent.includes(data.name)) {
+        recent.unshift(data.name);
+        if (recent.length > 5) recent.pop();
+        localStorage.setItem('recentPokemon', JSON.stringify(recent));
+      }
+    } catch (e) {
+      result.innerHTML = '<div class="api-result-error">Pokemon not found. Try a name or number (1-1010)</div>';
+    }
+  }
+  
+  // Autocomplete on input
+  let debounceTimer;
+  input.addEventListener('input', () => {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => {
+      showSuggestions(input.value.trim());
+    }, 150);
+  });
+  
+  // Hide suggestions when clicking outside
+  document.addEventListener('click', (e) => {
+    if (suggestions && !suggestions.contains(e.target) && e.target !== input) {
+      suggestions.classList.remove('show');
+    }
+  });
+  
+  btn.addEventListener('click', searchPokemon);
+  input.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') searchPokemon();
+  });
+  
+  // Load Pokemon names on init
+  loadPokemonNames();
+})();
+
+// ---- Country API (REST Countries) ----
+(function initCountrySearch() {
+  const input = document.getElementById('countryInput');
+  const btn = document.getElementById('countryBtn');
+  const result = document.getElementById('countryResult');
+  
+  if (!input || !btn) return;
+  
+  async function searchCountry() {
+    const query = input.value.trim();
+    if (!query) return;
+    
+    result.innerHTML = '<div class="api-result-loading"><div class="recipe-loading-spinner"></div></div>';
+    
+    try {
+      const res = await fetch(`https://restcountries.com/v3.1/name/${encodeURIComponent(query)}`);
+      
+      if (!res.ok) {
+        if (res.status === 404) {
+          result.innerHTML = '<div class="api-result-empty">Country not found. Try a different name.</div>';
+        } else {
+          result.innerHTML = '<div class="api-result-error">Error searching country. Please try again.</div>';
+        }
+        return;
+      }
+      
+      const data = await res.json();
+      
+      // Check if data is an array and has results
+      if (!Array.isArray(data) || data.length === 0) {
+        result.innerHTML = '<div class="api-result-empty">Country not found. Try a different name.</div>';
+        return;
+      }
+      
+      const country = data[0];
+      const flag = country.flags ? (country.flags.svg || country.flags.png) : '';
+      const capital = country.capital && country.capital.length > 0 ? country.capital.join(', ') : 'N/A';
+      const population = country.population ? country.population.toLocaleString() : 'N/A';
+      
+      // Handle languages - it's an object with language codes as keys
+      let languages = 'N/A';
+      if (country.languages) {
+        languages = Object.values(country.languages).join(', ');
+      }
+      
+      // Handle currencies - it's an object with currency codes as keys
+      let currency = 'N/A';
+      if (country.currencies) {
+        currency = Object.values(country.currencies).map(c => c.name || c).join(', ');
+      }
+      
+      const region = country.region || 'N/A';
+      const subregion = country.subregion || '';
+      const tld = country.tld && country.tld.length > 0 ? country.tld.join(', ') : 'N/A';
+      const timezones = country.timezones && country.timezones.length > 0 ? country.timezones[0] : 'N/A';
+      
+      result.innerHTML = `
+        <div class="country-card">
+          ${flag ? `<img src="${flag}" alt="${country.name.common} flag" class="country-flag">` : ''}
+          <div class="country-name">${country.name.common}</div>
+          ${country.name.official && country.name.official !== country.name.common ? 
+            `<div style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">Official: ${country.name.official}</div>` : ''}
+          <div class="country-info">
+            <div class="country-info-item">
+              <div class="country-label">Capital</div>
+              <div class="country-value">${capital}</div>
+            </div>
+            <div class="country-info-item">
+              <div class="country-label">Population</div>
+              <div class="country-value">${population}</div>
+            </div>
+            <div class="country-info-item">
+              <div class="country-label">Region</div>
+              <div class="country-value">${region}${subregion ? ' / ' + subregion : ''}</div>
+            </div>
+            <div class="country-info-item">
+              <div class="country-label">Languages</div>
+              <div class="country-value">${languages}</div>
+            </div>
+            <div class="country-info-item">
+              <div class="country-label">Currency</div>
+              <div class="country-value">${currency}</div>
+            </div>
+            <div class="country-info-item">
+              <div class="country-label">Time Zone</div>
+              <div class="country-value">${timezones}</div>
+            </div>
+            <div class="country-info-item">
+              <div class="country-label">Domain</div>
+              <div class="country-value">${tld}</div>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      // Save to localStorage
+      const recent = JSON.parse(localStorage.getItem('recentCountries') || '[]');
+      const countryName = country.name.common;
+      if (!recent.includes(countryName)) {
+        recent.unshift(countryName);
+        if (recent.length > 5) recent.pop();
+        localStorage.setItem('recentCountries', JSON.stringify(recent));
+      }
+    } catch (e) {
+      console.error('Country search error:', e);
+      result.innerHTML = '<div class="api-result-error">Error searching country. Please try again.</div>';
+    }
+  }
+  
+  btn.addEventListener('click', searchCountry);
+  input.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') searchCountry();
+  });
+})();
+
+// ---- Anime API (Jikan - MyAnimeList) ----
+(function initAnimeExplorer() {
+  const input = document.getElementById('animeInput');
+  const searchBtn = document.getElementById('animeSearchBtn');
+  const genreBtns = document.querySelectorAll('.anime-gen-btn');
+  const grid = document.getElementById('animeGrid');
+  const status = document.getElementById('animeStatus');
+  const modal = document.getElementById('animeModal');
+  const modalContent = document.getElementById('animeModalContent');
+  const modalClose = document.getElementById('animeModalClose');
+  
+  if (!grid) return;
+  
+  const API = 'https://api.jikan.moe/v4';
+  let selectedGenre = '';
+  
+  function showLoading() {
+    grid.innerHTML = '';
+    status.innerHTML = '<div class="recipe-loading"><div class="recipe-loading-spinner"></div>Loading anime...</div>';
+  }
+  
+  function showStatus(msg) {
+    grid.innerHTML = '';
+    status.innerHTML = '<div class="recipe-loading">' + msg + '</div>';
+  }
+  
+  function clearStatus() {
+    status.innerHTML = '';
+  }
+  
+  async function loadTopAnime(genre = '') {
+    showLoading();
+    try {
+      let url = genre ? `${API}/anime?genres=${genre}&order_by=score&sort=desc&limit=24` : `${API}/top/anime?limit=24`;
+      const res = await fetch(url);
+      const data = await res.json();
+      clearStatus();
+      
+      if (data.data && data.data.length > 0) {
+        renderAnimeCards(data.data);
+      } else {
+        showStatus('No anime found');
+      }
+    } catch (e) {
+      clearStatus();
+      showStatus('Error loading anime. Please try again.');
+    }
+  }
+  
+  async function searchAnime(query) {
+    showLoading();
+    try {
+      const res = await fetch(`${API}/anime?q=${encodeURIComponent(query)}&limit=24`);
+      const data = await res.json();
+      clearStatus();
+      
+      if (data.data && data.data.length > 0) {
+        renderAnimeCards(data.data);
+      } else {
+        showStatus('No anime found for "' + query + '"');
+      }
+    } catch (e) {
+      clearStatus();
+      showStatus('Error searching anime. Please try again.');
+    }
+  }
+  
+  function renderAnimeCards(animeList) {
+    grid.innerHTML = animeList.map(anime => `
+      <div class="anime-card" data-id="${anime.mal_id}">
+        <img src="${anime.images.jpg.image_url}" alt="${anime.title}" loading="lazy">
+        <div class="anime-card-body">
+          <div class="anime-card-title">${anime.title}</div>
+          ${anime.score ? `<div class="anime-card-score">⭐ ${anime.score}</div>` : ''}
+        </div>
+      </div>
+    `).join('');
+    
+    grid.querySelectorAll('.anime-card').forEach(card => {
+      card.addEventListener('click', () => showAnimeDetail(card.dataset.id));
+    });
+  }
+  
+  async function showAnimeDetail(id) {
+    try {
+      const res = await fetch(`${API}/anime/${id}/full`);
+      const data = await res.json();
+      const anime = data.data;
+      
+      modalContent.innerHTML = `
+        <button class="recipe-modal-close" id="animeModalClose">×</button>
+        <img class="anime-modal-img" src="${anime.images.jpg.large_image_url}" alt="${anime.title}">
+        <div class="anime-modal-body">
+          <h2>${anime.title}</h2>
+          ${anime.title_japanese ? `<p style="color: var(--text-faint); font-size: 14px;">${anime.title_japanese}</p>` : ''}
+          <div class="anime-modal-meta">
+            ${anime.score ? `<span class="anime-modal-score">⭐ ${anime.score}</span>` : ''}
+            ${anime.episodes ? `<span>${anime.episodes} episodes</span>` : ''}
+            ${anime.status ? `<span>${anime.status}</span>` : ''}
+            ${anime.rating ? `<span>${anime.rating}</span>` : ''}
+          </div>
+          ${anime.synopsis ? `<h3>Synopsis</h3><p>${anime.synopsis}</p>` : ''}
+          ${anime.genres && anime.genres.length > 0 ? `<h3>Genres</h3><p>${anime.genres.map(g => g.name).join(', ')}</p>` : ''}
+          ${anime.studios && anime.studios.length > 0 ? `<h3>Studios</h3><p>${anime.studios.map(s => s.name).join(', ')}</p>` : ''}
+          ${anime.url ? `<p><a href="${anime.url}" target="_blank" style="color: var(--accent);">View on MyAnimeList</a></p>` : ''}
+        </div>
+      `;
+      
+      modal.classList.add('open');
+      document.getElementById('animeModalClose').addEventListener('click', () => modal.classList.remove('open'));
+    } catch (e) {
+      console.error('Failed to load anime detail', e);
+    }
+  }
+  
+  // Event listeners
+  if (searchBtn) {
+    searchBtn.addEventListener('click', () => {
+      const q = input.value.trim();
+      if (q) {
+        genreBtns.forEach(b => b.classList.remove('active'));
+        searchAnime(q);
+      }
+    });
+  }
+  
+  if (input) {
+    input.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        const q = input.value.trim();
+        if (q) {
+          genreBtns.forEach(b => b.classList.remove('active'));
+          searchAnime(q);
+        }
+      }
+    });
+  }
+  
+  genreBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (btn.classList.contains('active')) {
+        btn.classList.remove('active');
+        selectedGenre = '';
+        loadTopAnime();
+      } else {
+        genreBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        selectedGenre = btn.dataset.genre;
+        input.value = '';
+        loadTopAnime(selectedGenre);
+      }
+    });
+  });
+  
+  if (modal) {
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) modal.classList.remove('open');
+    });
+  }
+  
+  // Load top anime on init
+  loadTopAnime();
+})();
+
+// ---- Drag and Drop for Tool Cards ----
+(function initToolDragDrop() {
+  const toolsSection = document.getElementById('toolsSection');
+  if (!toolsSection) return;
+  
+  const cards = toolsSection.querySelectorAll('.api-tool-card');
+  let draggedCard = null;
+  
+  // Load saved order from localStorage
+  const savedOrder = localStorage.getItem('toolsCardOrder');
+  if (savedOrder) {
+    const order = JSON.parse(savedOrder);
+    order.forEach(toolName => {
+      const card = toolsSection.querySelector(`[data-tool="${toolName}"]`);
+      if (card) toolsSection.appendChild(card);
+    });
+  }
+  
+  function saveOrder() {
+    const currentCards = toolsSection.querySelectorAll('.api-tool-card');
+    const order = Array.from(currentCards).map(card => card.dataset.tool);
+    localStorage.setItem('toolsCardOrder', JSON.stringify(order));
+  }
+  
+  cards.forEach(card => {
+    const handle = card.querySelector('.drag-handle');
+    
+    // Drag start
+    card.addEventListener('dragstart', (e) => {
+      draggedCard = card;
+      card.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+    });
+    
+    // Drag end
+    card.addEventListener('dragend', () => {
+      card.classList.remove('dragging');
+      document.querySelectorAll('.api-tool-card').forEach(c => c.classList.remove('drag-over'));
+      draggedCard = null;
+      saveOrder();
+    });
+    
+    // Drag over
+    card.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      
+      if (card !== draggedCard) {
+        card.classList.add('drag-over');
+        
+        // Get the position of the dragged card
+        const draggedRect = draggedCard.getBoundingClientRect();
+        const cardRect = card.getBoundingClientRect();
+        
+        // Determine if we should insert before or after
+        const draggedMidY = draggedRect.top + draggedRect.height / 2;
+        const cardMidY = cardRect.top + cardRect.height / 2;
+        
+        if (draggedMidY < cardMidY) {
+          toolsSection.insertBefore(draggedCard, card);
+        } else {
+          toolsSection.insertBefore(draggedCard, card.nextSibling);
+        }
+      }
+    });
+    
+    // Drag leave
+    card.addEventListener('dragleave', () => {
+      card.classList.remove('drag-over');
+    });
+    
+    // Drop
+    card.addEventListener('drop', (e) => {
+      e.preventDefault();
+      card.classList.remove('drag-over');
+    });
+  });
+})();

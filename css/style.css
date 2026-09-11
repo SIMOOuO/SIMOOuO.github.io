@@ -1178,6 +1178,7 @@ button { cursor: pointer; font-family: inherit; }
   color: var(--accent);
   text-decoration: underline;
   text-underline-offset: 3px;
+}
   font-size: 14px;
   text-decoration: none;
   transition: background 0.2s;
@@ -1308,6 +1309,8 @@ button { cursor: pointer; font-family: inherit; }
 /* --- Responsive --- */
 @media (max-width: 768px) {
   .hero { padding-top: calc(var(--nav-height) + 36px); padding-bottom: 24px; }
+  .hero-top-row { flex-direction: column; gap: 24px; }
+  .weather-widget { min-width: auto; width: 100%; }
   .hero-stats { gap: 24px; }
   .hero-stat-num { font-size: 22px; }
   .tools-grid { grid-template-columns: 1fr; }
@@ -1317,12 +1320,32 @@ button { cursor: pointer; font-family: inherit; }
   .about-card { padding: 24px; }
   .about-avatar-wrap { flex-direction: column; text-align: center; }
   .about-links { flex-direction: column; }
+  
+  /* API Tools Mobile */
+  .api-search-row { flex-direction: column; }
+  .currency-row { flex-direction: column; }
+  .currency-arrow { 
+    padding-top: 0;
+    transform: rotate(90deg);
+  }
+  .book-card { flex-direction: column; align-items: center; text-align: center; }
+  .pokemon-card { flex-direction: column; align-items: center; text-align: center; }
+  
+  .weather-search-row { flex-direction: row; }
+  .weather-widget { min-width: auto; }
+  
+  .drag-handle { display: none; }
+  
+  /* Anime Mobile */
+  .anime-search-bar { flex-direction: column; }
+  .anime-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
 }
 
 @media (max-width: 480px) {
   .hero h1 { font-size: 28px; }
   .hero-desc { font-size: 15px; }
   .hero-stats { flex-wrap: wrap; gap: 16px; }
+  .anime-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
 }
 
 /* --- Utility --- */
@@ -1335,4 +1358,741 @@ button { cursor: pointer; font-family: inherit; }
   overflow: hidden;
   clip: rect(0,0,0,0);
   border: 0;
+}
+
+/* --- Hero Top Row (Weather + Content) --- */
+.hero-top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 40px;
+}
+
+/* --- Weather Widget --- */
+.weather-widget {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  min-width: 200px;
+  box-shadow: var(--shadow-sm);
+}
+
+.weather-search-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.weather-city-input {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 13px;
+  font-family: var(--font-body);
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.weather-city-input:focus {
+  border-color: var(--accent);
+}
+
+.weather-search-btn {
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: var(--accent);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.weather-search-btn:hover {
+  background: var(--accent-hover);
+}
+
+.weather-search-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+.weather-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 80px;
+}
+
+.weather-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.weather-icon {
+  font-size: 40px;
+  line-height: 1;
+}
+
+.weather-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.weather-temp {
+  font-family: var(--font-display);
+  font-size: 32px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.weather-desc {
+  font-size: 14px;
+  color: var(--text-muted);
+  text-transform: capitalize;
+}
+
+.weather-location {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--text-faint);
+}
+
+.weather-location svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* --- API Tools Section --- */
+.api-tools-section {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 24px 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.api-tool-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  position: relative;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.api-tool-card.dragging {
+  opacity: 0.5;
+  transform: scale(0.98);
+}
+
+.api-tool-card.drag-over {
+  border-color: var(--accent);
+  border-width: 2px;
+}
+
+.drag-handle {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+  color: var(--text-faint);
+  border-radius: var(--radius-sm);
+  transition: background 0.2s, color 0.2s;
+  z-index: 10;
+}
+
+.drag-handle:hover {
+  background: var(--bg-elevated);
+  color: var(--text);
+}
+
+.drag-handle:active {
+  cursor: grabbing;
+}
+
+.drag-handle svg {
+  width: 18px;
+  height: 18px;
+}
+
+.api-tool-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.api-tool-header h2 {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.api-badge {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 4px;
+  background: var(--accent);
+  color: #fff;
+}
+
+.api-tool-body {
+  padding: 24px;
+}
+
+.api-search-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.api-input {
+  flex: 1;
+  padding: 12px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 15px;
+  font-family: var(--font-body);
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.api-input:focus {
+  border-color: var(--accent);
+}
+
+.api-btn {
+  padding: 12px 24px;
+  border: none;
+  border-radius: var(--radius);
+  background: var(--accent);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+
+.api-btn:hover {
+  background: var(--accent-hover);
+}
+
+/* --- Autocomplete --- */
+.autocomplete-wrapper {
+  position: relative;
+  flex: 1;
+}
+
+.autocomplete-suggestions {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-top: 4px;
+  max-height: 200px;
+  overflow-y: auto;
+  display: none;
+  z-index: 100;
+  box-shadow: var(--shadow-md);
+}
+
+.autocomplete-suggestions.show {
+  display: block;
+}
+
+.autocomplete-item {
+  padding: 10px 14px;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--text);
+  transition: background 0.15s;
+  text-transform: capitalize;
+}
+
+.autocomplete-item:hover {
+  background: var(--bg-elevated);
+}
+
+.autocomplete-item strong {
+  color: var(--accent);
+}
+
+.api-result {
+  min-height: 40px;
+}
+
+.api-result:empty {
+  display: none;
+}
+
+/* --- Currency Converter --- */
+.currency-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.currency-input-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.api-select {
+  padding: 12px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 15px;
+  font-family: var(--font-body);
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.api-select:focus {
+  border-color: var(--accent);
+}
+
+.currency-arrow {
+  font-size: 24px;
+  color: var(--text-faint);
+  padding-top: 20px;
+}
+
+.currency-result {
+  padding: 12px 16px;
+  background: var(--bg-elevated);
+  border-radius: var(--radius);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text);
+  font-family: var(--font-display);
+}
+
+/* --- Book Result --- */
+.book-card {
+  display: flex;
+  gap: 20px;
+  padding: 20px;
+  background: var(--bg);
+  border-radius: var(--radius);
+}
+
+.book-cover {
+  width: 120px;
+  height: 170px;
+  object-fit: cover;
+  border-radius: 6px;
+  box-shadow: var(--shadow-sm);
+  flex-shrink: 0;
+}
+
+.book-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.book-title {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.3;
+}
+
+.book-author {
+  font-size: 15px;
+  color: var(--accent);
+  font-weight: 500;
+}
+
+.book-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.book-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.book-meta-item strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.book-desc {
+  font-size: 14px;
+  color: var(--text-muted);
+  line-height: 1.6;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.book-links {
+  display: flex;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.book-link {
+  padding: 6px 14px;
+  border-radius: var(--radius-sm);
+  background: var(--accent);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.2s;
+}
+
+.book-link:hover {
+  background: var(--accent-hover);
+  color: #fff;
+}
+
+.book-link.secondary {
+  background: var(--bg-elevated);
+  color: var(--text);
+}
+
+.book-link.secondary:hover {
+  background: var(--border);
+}
+
+/* --- Pokemon Result --- */
+.pokemon-card {
+  display: flex;
+  gap: 20px;
+  padding: 16px;
+  background: var(--bg);
+  border-radius: var(--radius);
+}
+
+.pokemon-image {
+  width: 120px;
+  height: 120px;
+  object-fit: contain;
+}
+
+.pokemon-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pokemon-name {
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--text);
+  text-transform: capitalize;
+}
+
+.pokemon-types {
+  display: flex;
+  gap: 8px;
+}
+
+.pokemon-type {
+  padding: 4px 12px;
+  border-radius: 100px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.pokemon-stats {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+/* --- Country Result --- */
+.country-card {
+  padding: 16px;
+  background: var(--bg);
+  border-radius: var(--radius);
+}
+
+.country-flag {
+  width: 100%;
+  max-width: 200px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow-sm);
+}
+
+.country-name {
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 12px;
+}
+
+.country-info {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+}
+
+.country-info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.country-label {
+  font-size: 12px;
+  color: var(--text-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.country-value {
+  font-size: 15px;
+  color: var(--text);
+  font-weight: 500;
+}
+
+/* --- Anime Section --- */
+.anime-section {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 24px 80px;
+}
+
+.anime-search-bar {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.anime-input {
+  flex: 1;
+}
+
+.anime-genres {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 30px;
+}
+
+.anime-gen-btn {
+  padding: 8px 16px;
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 13px;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+
+.anime-gen-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.anime-gen-btn.active {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+.anime-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 20px;
+}
+
+.anime-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.anime-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+}
+
+.anime-card img {
+  width: 100%;
+  aspect-ratio: 3/4;
+  object-fit: cover;
+}
+
+.anime-card-body {
+  padding: 12px;
+}
+
+.anime-card-title {
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--text);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.anime-card-score {
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* --- Anime Modal --- */
+.anime-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(6px);
+  z-index: 3000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.25s, visibility 0.25s;
+}
+
+.anime-modal.open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.anime-modal-content {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  max-width: 700px;
+  width: 100%;
+  max-height: 85vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-lg);
+  position: relative;
+}
+
+.anime-modal-img {
+  width: 100%;
+  aspect-ratio: 16/9;
+  object-fit: cover;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+
+.anime-modal-body {
+  padding: 24px;
+}
+
+.anime-modal-body h2 {
+  font-family: var(--font-display);
+  font-size: 24px;
+  margin-bottom: 8px;
+}
+
+.anime-modal-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.anime-modal-meta span {
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 4px;
+  background: var(--bg-elevated);
+  color: var(--text-muted);
+}
+
+.anime-modal-score {
+  background: var(--accent) !important;
+  color: #fff !important;
+  font-weight: 600;
+}
+
+.anime-modal-body h3 {
+  font-family: var(--font-display);
+  font-size: 18px;
+  margin: 20px 0 10px;
+}
+
+.anime-modal-body p {
+  font-size: 14px;
+  color: var(--text-muted);
+  line-height: 1.7;
+  margin-bottom: 12px;
+}
+
+/* --- API Result States --- */
+.api-result-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+.api-result-empty,
+.api-result-error {
+  padding: 16px;
+  background: var(--bg);
+  border-radius: var(--radius);
+  color: var(--text-muted);
+  text-align: center;
+  font-size: 14px;
+}
+
+.api-result-error {
+  color: var(--accent);
 }

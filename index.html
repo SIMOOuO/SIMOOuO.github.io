@@ -14,7 +14,9 @@
             <a href="index.html" class="nav-logo">SIMO<span>.</span></a>
             <div class="nav-links" id="navLinks">
                 <a href="index.html" class="active">Home</a>
+                <a href="tools.html">Tools</a>
                 <a href="food.html">Recipe Finder</a>
+                <a href="anime.html">Anime</a>
                 <a href="game.html">Games</a>
                 <a href="about.html">About</a>
             </div>
@@ -60,9 +62,36 @@
 
     <!-- Hero -->
     <section class="hero">
-        <div class="hero-eyebrow">Curated by SIMO</div>
-        <h1>Useful websites<br>& <em>tools</em> I found</h1>
-        <p class="hero-desc">A growing collection of websites, tools, and resources that I've discovered and found genuinely useful. From productivity to fun — all in one place.</p>
+        <div class="hero-top-row">
+            <div>
+                <div class="hero-eyebrow">Curated by SIMO</div>
+                <h1>Useful websites<br>& <em>tools</em> I found</h1>
+                <p class="hero-desc">A growing collection of websites, tools, and resources that I've discovered and found genuinely useful. From productivity to fun — all in one place.</p>
+            </div>
+            <!-- Weather Widget -->
+            <div class="weather-widget" id="weatherWidget">
+                <div class="weather-search-row">
+                    <input type="text" id="weatherCityInput" class="weather-city-input" placeholder="Enter city...">
+                    <button id="weatherSearchBtn" class="weather-search-btn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    </button>
+                </div>
+                <div class="weather-loading">
+                    <div class="recipe-loading-spinner"></div>
+                </div>
+                <div class="weather-content" id="weatherContent" style="display:none;">
+                    <div class="weather-icon" id="weatherIcon"></div>
+                    <div class="weather-info">
+                        <div class="weather-temp" id="weatherTemp">--°C</div>
+                        <div class="weather-desc" id="weatherDesc">--</div>
+                    </div>
+                    <div class="weather-location">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                        <span id="weatherLocation">Locating...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div class="hero-stats">
             <div>
                 <div class="hero-stat-num" id="totalCount">0</div>
