@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Anime — SIMO</title>
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/anime.css">
 </head>
 <body>
     <!-- Navigation -->
@@ -30,47 +31,158 @@
         </div>
     </nav>
 
-    <!-- Header -->
-    <section class="page-header">
-        <h1>Anime Explorer</h1>
-        <p>Search anime or browse top rated. Powered by Jikan (MyAnimeList).</p>
+    <!-- Hero Section -->
+    <section class="anime-hero">
+        <div class="anime-hero-bg" id="animeHeroBg"></div>
+        <div class="anime-hero-content">
+            <h1 class="anime-hero-title">Anime Explorer</h1>
+            <p class="anime-hero-subtitle">Discover, search, and explore anime, manga, characters and more. Powered by Jikan (MyAnimeList).</p>
+        </div>
     </section>
 
-    <!-- Anime Section -->
-    <section class="anime-section">
-        <!-- Search Bar -->
-        <div class="anime-search-bar">
-            <input type="text" id="animeInput" class="api-input anime-input" placeholder="Search anime by name...">
-            <button id="animeSearchBtn" class="api-btn">Search</button>
+    <!-- Main Layout: Sidebar + Content -->
+    <main class="anime-layout">
+        <!-- Left Sidebar: Top 10 -->
+        <aside class="anime-sidebar" id="animeSidebar">
+            <div class="sidebar-box">
+                <div class="sidebar-header">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                    <h3>Top 10 Anime</h3>
+                </div>
+                <div class="sidebar-list" id="top10List">
+                    <div class="recipe-loading"><div class="recipe-loading-spinner"></div></div>
+                </div>
+            </div>
+
+            <!-- Season Info Box -->
+            <div class="sidebar-box">
+                <div class="sidebar-header">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    <h3>Current Season</h3>
+                </div>
+                <div class="sidebar-season" id="seasonInfo">
+                    <div class="recipe-loading"><div class="recipe-loading-spinner"></div></div>
+                </div>
+            </div>
+
+            <!-- Quick Genre Filter -->
+            <div class="sidebar-box">
+                <div class="sidebar-header">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+                    <h3>Genres</h3>
+                </div>
+                <div class="sidebar-genres" id="sidebarGenres">
+                    <button class="sidebar-gen-btn active" data-genre="">All</button>
+                    <button class="sidebar-gen-btn" data-genre="1">Action</button>
+                    <button class="sidebar-gen-btn" data-genre="2">Adventure</button>
+                    <button class="sidebar-gen-btn" data-genre="4">Comedy</button>
+                    <button class="sidebar-gen-btn" data-genre="8">Drama</button>
+                    <button class="sidebar-gen-btn" data-genre="10">Fantasy</button>
+                    <button class="sidebar-gen-btn" data-genre="7">Mystery</button>
+                    <button class="sidebar-gen-btn" data-genre="22">Romance</button>
+                    <button class="sidebar-gen-btn" data-genre="24">Sci-Fi</button>
+                    <button class="sidebar-gen-btn" data-genre="36">Slice of Life</button>
+                    <button class="sidebar-gen-btn" data-genre="30">Sports</button>
+                    <button class="sidebar-gen-btn" data-genre="37">Supernatural</button>
+                    <button class="sidebar-gen-btn" data-genre="14">Horror</button>
+                    <button class="sidebar-gen-btn" data-genre="13">Historical</button>
+                    <button class="sidebar-gen-btn" data-genre="18">Mecha</button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <div class="anime-content">
+            <!-- Main Tabs -->
+            <div class="anime-main-tabs">
+                <button class="anime-main-tab active" data-tab="season">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 18a5 5 0 0 0-10 0"/><line x1="12" y1="2" x2="12" y2="9"/><line x1="4.22" y1="10.22" x2="5.64" y2="11.64"/><line x1="1" y1="18" x2="3" y2="18"/><line x1="21" y1="18" x2="23" y2="18"/><line x1="18.36" y1="11.64" x2="19.78" y2="10.22"/><line x1="23" y1="22" x2="1" y2="22"/><polyline points="16 5 12 9 8 5"/></svg>
+                    This Season
+                </button>
+                <button class="anime-main-tab" data-tab="top">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                    Top Rated
+                </button>
+                <button class="anime-main-tab" data-tab="airing">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    Airing
+                </button>
+                <button class="anime-main-tab" data-tab="upcoming">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    Upcoming
+                </button>
+                <button class="anime-main-tab" data-tab="manga">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                    Manga
+                </button>
+                <button class="anime-main-tab" data-tab="characters">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    Characters
+                </button>
+                <button class="anime-main-tab" data-tab="schedule">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    Schedule
+                </button>
+                <button class="anime-main-tab" data-tab="watch">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                    Watch
+                </button>
+            </div>
+
+            <!-- Schedule Day Filter (hidden by default) -->
+            <div class="anime-schedule-days" id="scheduleDays" style="display:none;">
+                <button class="schedule-day-btn active" data-day="">All Days</button>
+                <button class="schedule-day-btn" data-day="monday">Mon</button>
+                <button class="schedule-day-btn" data-day="tuesday">Tue</button>
+                <button class="schedule-day-btn" data-day="wednesday">Wed</button>
+                <button class="schedule-day-btn" data-day="thursday">Thu</button>
+                <button class="schedule-day-btn" data-day="friday">Fri</button>
+                <button class="schedule-day-btn" data-day="saturday">Sat</button>
+                <button class="schedule-day-btn" data-day="sunday">Sun</button>
+            </div>
+
+            <!-- Watch Sub-tabs (hidden by default) -->
+            <div class="anime-watch-tabs" id="watchTabs" style="display:none;">
+                <button class="watch-tab-btn active" data-watch="recent-episodes">Recent Episodes</button>
+                <button class="watch-tab-btn" data-watch="popular-episodes">Popular Episodes</button>
+                <button class="watch-tab-btn" data-watch="recent-promos">Recent Promos</button>
+                <button class="watch-tab-btn" data-watch="popular-promos">Popular Promos</button>
+            </div>
+
+            <!-- Search Bar -->
+            <div class="anime-search-section">
+                <div class="anime-search-bar">
+                    <svg class="anime-search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    <input type="text" id="animeInput" class="anime-search-input" placeholder="Search anime by name..." autocomplete="off">
+                    <div id="animeSuggestions" class="autocomplete-suggestions"></div>
+                    <button id="animeSearchBtn" class="anime-search-btn">Search</button>
+                    <button id="animeRandomBtn" class="anime-random-btn">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/>
+                        </svg>
+                        Random
+                    </button>
+                </div>
+            </div>
+
+            <!-- Status -->
+            <div id="animeStatus"></div>
+
+            <!-- Content Grid -->
+            <div class="anime-grid" id="animeGrid"></div>
+
+            <!-- Pagination -->
+            <div class="anime-pagination" id="animePagination"></div>
         </div>
-
-        <!-- Genre Tabs -->
-        <div class="anime-genres" id="animeGenres">
-            <button class="anime-gen-btn active" data-genre="">Top Rated</button>
-            <button class="anime-gen-btn" data-genre="1">Action</button>
-            <button class="anime-gen-btn" data-genre="2">Adventure</button>
-            <button class="anime-gen-btn" data-genre="4">Comedy</button>
-            <button class="anime-gen-btn" data-genre="8">Drama</button>
-            <button class="anime-gen-btn" data-genre="10">Fantasy</button>
-            <button class="anime-gen-btn" data-genre="7">Mystery</button>
-            <button class="anime-gen-btn" data-genre="22">Romance</button>
-            <button class="anime-gen-btn" data-genre="24">Sci-Fi</button>
-            <button class="anime-gen-btn" data-genre="36">Slice of Life</button>
-            <button class="anime-gen-btn" data-genre="30">Sports</button>
-            <button class="anime-gen-btn" data-genre="37">Supernatural</button>
-        </div>
-
-        <!-- Status -->
-        <div id="animeStatus"></div>
-
-        <!-- Anime Grid -->
-        <div class="anime-grid" id="animeGrid"></div>
-    </section>
+    </main>
 
     <!-- Anime Detail Modal -->
     <div class="anime-modal" id="animeModal">
         <div class="anime-modal-content" id="animeModalContent">
-            <button class="recipe-modal-close" id="animeModalClose">×</button>
+            <button class="recipe-modal-close" id="animeModalClose">&times;</button>
         </div>
     </div>
 
@@ -91,8 +203,8 @@
             </div>
         </div>
         <div class="footer-bottom">
-            <span>Copyright © 2026 SIMOOuO</span>
-            <button class="footer-disclaimer-btn" id="openDisclaimer">Disclaimer | 免责声明</button>
+            <span>Copyright &copy; 2026 SIMOOuO</span>
+            <button class="footer-disclaimer-btn" id="openDisclaimer">Disclaimer | &#20813;&#36131;&#22768;&#26126;</button>
         </div>
     </footer>
 
@@ -105,17 +217,18 @@
     <div class="modal-overlay" id="disclaimerModal">
         <div class="modal-box">
             <div class="modal-header">
-                <h3>Disclaimer | 免责声明</h3>
-                <button class="close-btn" id="closeModal">×</button>
+                <h3>Disclaimer | &#20813;&#36131;&#22768;&#26126;</h3>
+                <button class="close-btn" id="closeModal">&times;</button>
             </div>
             <div class="modal-body">
                 <p>This website is intended for personal learning and interest purposes only. Please review the applicable licenses before using any resources.</p>
-                <p>本网站为个人学习与兴趣展示用途，所有资源请在使用前自行确认授权许可。</p>
+                <p>&#26412;&#32593;&#31449;&#20026;&#20010;&#20154;&#23398;&#20064;&#19982;&#20852;&#36259;&#23637;&#31034;&#29992;&#36884;&#65292;&#25152;&#26377;&#36164;&#28304;&#35831;&#22312;&#20351;&#29992;&#21069;&#33258;&#34892;&#30830;&#35748;&#25480;&#26435;&#35768;&#21487;&#12290;</p>
             </div>
-            <button id="acceptDisclaimer" class="btn-primary">I Understand | 我知道了</button>
+            <button id="acceptDisclaimer" class="btn-primary">I Understand | &#25105;&#30693;&#36947;&#20102;</button>
         </div>
     </div>
 
     <script src="js/main.js"></script>
+    <script src="js/anime.js"></script>
 </body>
 </html>

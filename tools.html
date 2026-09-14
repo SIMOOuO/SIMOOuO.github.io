@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tools — SIMO</title>
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/tools.css">
 </head>
 <body>
     <!-- Navigation -->
@@ -39,17 +40,28 @@
     <!-- Tools Container -->
     <section class="api-tools-section" id="toolsSection">
         <!-- Book Search -->
-        <div class="api-tool-card" draggable="true" data-tool="book">
-            <div class="drag-handle" title="Drag to reorder">
-                <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/></svg>
+        <div class="api-tool-card" data-tool="book">
+            <div class="card-move-controls">
+                <button class="card-move-up" title="Move up">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="18 15 12 9 6 15"></polyline></svg>
+                </button>
+                <button class="card-move-down" title="Move down">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </button>
             </div>
             <div class="api-tool-header">
                 <h2>Open Library</h2>
-                <span class="api-badge">Book Search</span>
+                <div style="display: flex; gap: 8px; align-items: center;">
+                    <button id="bookRandomBtn" class="api-btn" style="padding: 6px 12px; font-size: 12px;">🎲 Random</button>
+                    <span class="api-badge">Book Search</span>
+                </div>
             </div>
             <div class="api-tool-body">
                 <div class="api-search-row">
-                    <input type="text" id="bookInput" class="api-input" placeholder="Search for a book...">
+                    <div class="autocomplete-wrapper">
+                        <input type="text" id="bookInput" class="api-input" placeholder="Search for a book..." autocomplete="off">
+                        <div id="bookSuggestions" class="autocomplete-suggestions"></div>
+                    </div>
                     <button id="bookBtn" class="api-btn">Search</button>
                 </div>
                 <div id="bookResult" class="api-result"></div>
@@ -57,45 +69,100 @@
         </div>
 
         <!-- Currency Converter -->
-        <div class="api-tool-card" draggable="true" data-tool="currency">
-            <div class="drag-handle" title="Drag to reorder">
-                <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/></svg>
+        <div class="api-tool-card" data-tool="currency">
+            <div class="card-move-controls">
+                <button class="card-move-up" title="Move up">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="18 15 12 9 6 15"></polyline></svg>
+                </button>
+                <button class="card-move-down" title="Move down">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </button>
             </div>
             <div class="api-tool-header">
-                <h2>Frankfurter</h2>
-                <span class="api-badge">Currency Exchange</span>
+                <h2>Exchange Rate</h2>
+                <span class="api-badge">Currency Converter</span>
             </div>
             <div class="api-tool-body">
+                <div class="currency-search-row" style="margin-bottom: 16px;">
+                    <div class="autocomplete-wrapper">
+                        <input type="text" id="currencyCountryInput" class="api-input" placeholder="Search country to auto-fill currency..." autocomplete="off">
+                        <div id="currencyCountrySuggestions" class="autocomplete-suggestions"></div>
+                    </div>
+                </div>
                 <div class="currency-row">
                     <div class="currency-input-group">
                         <input type="number" id="currencyAmount" class="api-input" value="100" min="0">
                         <select id="currencyFrom" class="api-select">
-                            <option value="USD">USD</option>
-                            <option value="EUR">EUR</option>
-                            <option value="GBP">GBP</option>
-                            <option value="JPY">JPY</option>
-                            <option value="CNY">CNY</option>
-                            <option value="KRW">KRW</option>
-                            <option value="THB">THB</option>
-                            <option value="AUD">AUD</option>
-                            <option value="CAD">CAD</option>
-                            <option value="HKD">HKD</option>
+                            <option value="USD">USD - US Dollar</option>
+                            <option value="EUR">EUR - Euro</option>
+                            <option value="GBP">GBP - British Pound</option>
+                            <option value="JPY">JPY - Japanese Yen</option>
+                            <option value="CNY">CNY - Chinese Yuan</option>
+                            <option value="KRW">KRW - South Korean Won</option>
+                            <option value="THB">THB - Thai Baht</option>
+                            <option value="AUD">AUD - Australian Dollar</option>
+                            <option value="CAD">CAD - Canadian Dollar</option>
+                            <option value="HKD">HKD - Hong Kong Dollar</option>
+                            <option value="SGD">SGD - Singapore Dollar</option>
+                            <option value="MYR">MYR - Malaysian Ringgit</option>
+                            <option value="IDR">IDR - Indonesian Rupiah</option>
+                            <option value="PHP">PHP - Philippine Peso</option>
+                            <option value="VND">VND - Vietnamese Dong</option>
+                            <option value="INR">INR - Indian Rupee</option>
+                            <option value="NZD">NZD - New Zealand Dollar</option>
+                            <option value="CHF">CHF - Swiss Franc</option>
+                            <option value="SEK">SEK - Swedish Krona</option>
+                            <option value="NOK">NOK - Norwegian Krone</option>
+                            <option value="DKK">DKK - Danish Krone</option>
+                            <option value="PLN">PLN - Polish Zloty</option>
+                            <option value="CZK">CZK - Czech Koruna</option>
+                            <option value="HUF">HUF - Hungarian Forint</option>
+                            <option value="RUB">RUB - Russian Ruble</option>
+                            <option value="TRY">TRY - Turkish Lira</option>
+                            <option value="BRL">BRL - Brazilian Real</option>
+                            <option value="MXN">MXN - Mexican Peso</option>
+                            <option value="ZAR">ZAR - South African Rand</option>
+                            <option value="AED">AED - UAE Dirham</option>
+                            <option value="SAR">SAR - Saudi Riyal</option>
+                            <option value="ILS">ILS - Israeli Shekel</option>
                         </select>
                     </div>
                     <span class="currency-arrow">→</span>
                     <div class="currency-input-group">
                         <div id="currencyResult" class="currency-result">--</div>
                         <select id="currencyTo" class="api-select">
-                            <option value="EUR">EUR</option>
-                            <option value="USD">USD</option>
-                            <option value="GBP">GBP</option>
-                            <option value="JPY">JPY</option>
-                            <option value="CNY">CNY</option>
-                            <option value="KRW">KRW</option>
-                            <option value="THB">THB</option>
-                            <option value="AUD">AUD</option>
-                            <option value="CAD">CAD</option>
-                            <option value="HKD">HKD</option>
+                            <option value="EUR">EUR - Euro</option>
+                            <option value="USD">USD - US Dollar</option>
+                            <option value="GBP">GBP - British Pound</option>
+                            <option value="JPY">JPY - Japanese Yen</option>
+                            <option value="CNY">CNY - Chinese Yuan</option>
+                            <option value="KRW">KRW - South Korean Won</option>
+                            <option value="THB">THB - Thai Baht</option>
+                            <option value="AUD">AUD - Australian Dollar</option>
+                            <option value="CAD">CAD - Canadian Dollar</option>
+                            <option value="HKD">HKD - Hong Kong Dollar</option>
+                            <option value="SGD">SGD - Singapore Dollar</option>
+                            <option value="MYR">MYR - Malaysian Ringgit</option>
+                            <option value="IDR">IDR - Indonesian Rupiah</option>
+                            <option value="PHP">PHP - Philippine Peso</option>
+                            <option value="VND">VND - Vietnamese Dong</option>
+                            <option value="INR">INR - Indian Rupee</option>
+                            <option value="NZD">NZD - New Zealand Dollar</option>
+                            <option value="CHF">CHF - Swiss Franc</option>
+                            <option value="SEK">SEK - Swedish Krona</option>
+                            <option value="NOK">NOK - Norwegian Krone</option>
+                            <option value="DKK">DKK - Danish Krone</option>
+                            <option value="PLN">PLN - Polish Zloty</option>
+                            <option value="CZK">CZK - Czech Koruna</option>
+                            <option value="HUF">HUF - Hungarian Forint</option>
+                            <option value="RUB">RUB - Russian Ruble</option>
+                            <option value="TRY">TRY - Turkish Lira</option>
+                            <option value="BRL">BRL - Brazilian Real</option>
+                            <option value="MXN">MXN - Mexican Peso</option>
+                            <option value="ZAR">ZAR - South African Rand</option>
+                            <option value="AED">AED - UAE Dirham</option>
+                            <option value="SAR">SAR - Saudi Riyal</option>
+                            <option value="ILS">ILS - Israeli Shekel</option>
                         </select>
                     </div>
                 </div>
@@ -103,18 +170,26 @@
         </div>
 
         <!-- Pokemon Lookup -->
-        <div class="api-tool-card" draggable="true" data-tool="pokemon">
-            <div class="drag-handle" title="Drag to reorder">
-                <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/></svg>
+        <div class="api-tool-card" data-tool="pokemon">
+            <div class="card-move-controls">
+                <button class="card-move-up" title="Move up">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="18 15 12 9 6 15"></polyline></svg>
+                </button>
+                <button class="card-move-down" title="Move down">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </button>
             </div>
             <div class="api-tool-header">
                 <h2>PokéAPI</h2>
-                <span class="api-badge">Pokémon Lookup</span>
+                <div style="display: flex; gap: 8px; align-items: center;">
+                    <button id="pokemonRandomBtn" class="api-btn" style="padding: 6px 12px; font-size: 12px;">🎲 Random</button>
+                    <span class="api-badge">Pokémon Lookup</span>
+                </div>
             </div>
             <div class="api-tool-body">
                 <div class="api-search-row">
                     <div class="autocomplete-wrapper">
-                        <input type="text" id="pokemonInput" class="api-input" placeholder="Type to search, e.g. pika..." autocomplete="off">
+                        <input type="text" id="pokemonInput" class="api-input" placeholder="Type to search, e.g. pika, water..." autocomplete="off">
                         <div id="pokemonSuggestions" class="autocomplete-suggestions"></div>
                     </div>
                     <button id="pokemonBtn" class="api-btn">Search</button>
@@ -124,17 +199,27 @@
         </div>
 
         <!-- Country Lookup -->
-        <div class="api-tool-card" draggable="true" data-tool="country">
-            <div class="drag-handle" title="Drag to reorder">
-                <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/></svg>
+        <div class="api-tool-card" data-tool="country">
+            <div class="card-move-controls">
+                <button class="card-move-up" title="Move up">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="18 15 12 9 6 15"></polyline></svg>
+                </button>
+                <button class="card-move-down" title="Move down">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </button>
             </div>
             <div class="api-tool-header">
                 <h2>Country API</h2>
-                <span class="api-badge">Country Info</span>
+                <div style="display: flex; gap: 8px; align-items: center;">
+                    <button id="countryRandomBtn" class="api-btn" style="padding: 6px 12px; font-size: 12px;">🎲 Random</button>
+                    <span class="api-badge">Country Info</span>
+                </div>
             </div>
             <div class="api-tool-body">
                 <div class="api-search-row">
-                    <input type="text" id="countryInput" class="api-input" placeholder="Country name, e.g. Japan or Thailand">
+                    <div class="autocomplete-wrapper">
+                        <input type="text" id="countryInput" class="api-input" placeholder="Country name, e.g. Japan or Thailand" autocomplete="off">
+                    </div>
                     <button id="countryBtn" class="api-btn">Search</button>
                 </div>
                 <div id="countryResult" class="api-result"></div>
@@ -185,5 +270,6 @@
     </div>
 
     <script src="js/main.js"></script>
+    <script src="js/tools.js"></script>
 </body>
 </html>
