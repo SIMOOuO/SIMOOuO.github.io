@@ -560,9 +560,29 @@
   const toolsSection = document.getElementById('toolsSection');
   if (!toolsSection) return;
 
-  const cards = toolsSection.querySelectorAll('.api-tool-card');
+  // Restore saved order from localStorage
+  function restoreOrder() {
+    const savedOrder = JSON.parse(localStorage.getItem('toolOrder') || '[]');
+    if (savedOrder.length === 0) return;
 
+    const cards = Array.from(toolsSection.querySelectorAll('.api-tool-card'));
+    const cardMap = new Map();
+    cards.forEach(card => {
+      cardMap.set(card.dataset.tool, card);
+    });
+
+    // Reorder cards based on saved order
+    savedOrder.forEach(toolId => {
+      const card = cardMap.get(toolId);
+      if (card) {
+        toolsSection.appendChild(card);
+      }
+    });
+  }
+
+  // Update button states (disable first up, last down)
   function updateButtons() {
+    const cards = Array.from(toolsSection.querySelectorAll('.api-tool-card'));
     cards.forEach((card, index) => {
       const upBtn = card.querySelector('.card-move-up');
       const downBtn = card.querySelector('.card-move-down');
@@ -570,44 +590,63 @@
       if (upBtn) {
         upBtn.disabled = index === 0;
         upBtn.style.opacity = index === 0 ? '0.3' : '1';
+        upBtn.style.pointerEvents = index === 0 ? 'none' : 'auto';
       }
       if (downBtn) {
         downBtn.disabled = index === cards.length - 1;
         downBtn.style.opacity = index === cards.length - 1 ? '0.3' : '1';
+        downBtn.style.pointerEvents = index === cards.length - 1 ? 'none' : 'auto';
       }
     });
   }
 
-  cards.forEach((card, index) => {
-    const upBtn = card.querySelector('.card-move-up');
-    const downBtn = card.querySelector('.card-move-down');
-
-    if (upBtn) {
-      upBtn.addEventListener('click', () => {
-        if (index > 0) {
-          toolsSection.insertBefore(card, cards[index - 1]);
-          updateCardOrder();
-        }
-      });
-    }
-
-    if (downBtn) {
-      downBtn.addEventListener('click', () => {
-        if (index < cards.length - 1) {
-          toolsSection.insertBefore(cards[index + 1], card);
-          updateCardOrder();
-        }
-      });
-    }
-  });
-
-  function updateCardOrder() {
-    const currentCards = Array.from(toolsSection.querySelectorAll('.api-tool-card'));
-    const order = currentCards.map(card => card.dataset.tool);
+  // Save current order to localStorage
+  function saveOrder() {
+    const cards = Array.from(toolsSection.querySelectorAll('.api-tool-card'));
+    const order = cards.map(card => card.dataset.tool);
     localStorage.setItem('toolOrder', JSON.stringify(order));
     updateButtons();
   }
 
+  // Attach click handlers to all move buttons
+  function attachHandlers() {
+    const cards = Array.from(toolsSection.querySelectorAll('.api-tool-card'));
+    
+    cards.forEach((card) => {
+      const upBtn = card.querySelector('.card-move-up');
+      const downBtn = card.querySelector('.card-move-down');
+
+      if (upBtn) {
+        upBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          const currentCards = Array.from(toolsSection.querySelectorAll('.api-tool-card'));
+          const currentIndex = currentCards.indexOf(card);
+          if (currentIndex > 0) {
+            toolsSection.insertBefore(card, currentCards[currentIndex - 1]);
+            saveOrder();
+          }
+        });
+      }
+
+      if (downBtn) {
+        downBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          const currentCards = Array.from(toolsSection.querySelectorAll('.api-tool-card'));
+          const currentIndex = currentCards.indexOf(card);
+          if (currentIndex < currentCards.length - 1) {
+            toolsSection.insertBefore(currentCards[currentIndex + 1], card);
+            saveOrder();
+          }
+        });
+      }
+    });
+  }
+
+  // Initialize: restore order, attach handlers, update buttons
+  restoreOrder();
+  attachHandlers();
   updateButtons();
 })();
 
