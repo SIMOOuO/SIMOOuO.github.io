@@ -1336,7 +1336,6 @@ button { cursor: pointer; font-family: inherit; }
   color: var(--accent);
   text-decoration: underline;
   text-underline-offset: 3px;
-}
   font-size: 14px;
   text-decoration: none;
   transition: background 0.2s;
