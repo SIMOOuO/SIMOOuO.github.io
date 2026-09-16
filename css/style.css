@@ -842,6 +842,164 @@ button { cursor: pointer; font-family: inherit; }
   z-index: 1;
 }
 
+/* --- Recipe Search Autocomplete --- */
+.recipe-input-wrap {
+  flex: 1;
+  position: relative;
+}
+
+.recipe-autocomplete {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-top: 4px;
+  max-height: 280px;
+  overflow-y: auto;
+  display: none;
+  z-index: 100;
+  box-shadow: var(--shadow-lg);
+}
+
+.recipe-autocomplete.open {
+  display: block;
+}
+
+.recipe-autocomplete-group {
+  padding: 6px 0;
+}
+
+.recipe-autocomplete-group:not(:last-child) {
+  border-bottom: 1px solid var(--border-light);
+}
+
+.recipe-autocomplete-group-label {
+  font-size: 10px;
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-faint);
+  padding: 4px 14px 2px;
+}
+
+.recipe-autocomplete-item {
+  padding: 8px 14px;
+  font-size: 14px;
+  color: var(--text);
+  cursor: pointer;
+  transition: background 0.12s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.recipe-autocomplete-item:hover,
+.recipe-autocomplete-item.highlighted {
+  background: var(--bg-elevated);
+}
+
+.recipe-autocomplete-item .ac-icon {
+  font-size: 14px;
+  width: 20px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.recipe-autocomplete-item .ac-text {
+  flex: 1;
+}
+
+.recipe-autocomplete-item .ac-type {
+  font-size: 10px;
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  color: var(--text-faint);
+  padding: 2px 6px;
+  border-radius: 3px;
+  background: var(--bg-elevated);
+}
+
+.recipe-autocomplete-item .ac-text strong {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* --- Data Area Category Filter --- */
+.data-area-filter {
+  margin-bottom: 20px;
+  padding: 16px 20px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.data-area-filter-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.data-area-filter-label {
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.data-area-clear-btn {
+  padding: 4px 12px;
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 12px;
+  transition: all 0.2s;
+}
+
+.data-area-clear-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.data-area-filter-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.data-area-filter-chip {
+  padding: 5px 12px;
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.data-area-filter-chip:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.data-area-filter-chip.active {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+.data-area-filter-chip .chip-count {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  margin-left: 4px;
+  opacity: 0.7;
+}
+
 .recipe-loading {
   text-align: center;
   padding: 40px;

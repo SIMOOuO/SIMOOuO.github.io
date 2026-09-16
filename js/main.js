@@ -254,12 +254,35 @@ const toolsData = [
   const modal = document.getElementById('recipeModal');
   const modalContent = document.getElementById('recipeModalContent');
   const modalClose = document.getElementById('recipeModalClose');
+  const autocompleteEl = document.getElementById('recipeAutocomplete');
+  const dataAreaFilter = document.getElementById('dataAreaFilter');
+  const dataAreaFilterOptions = document.getElementById('dataAreaFilterOptions');
+  const dataAreaClearBtn = document.getElementById('dataAreaClearBtn');
 
   if (!input || !grid) return;
 
   const API = 'https://www.themealdb.com/api/json/v1/1';
   let selectedMealCategory = null;
   let currentCuisine = null;
+  let allAreas = [];
+  let allCategories = [];
+  let allDisplayedMeals = []; // track currently displayed meals for data-area filtering
+  let dataAreaActiveFilter = null; // currently active data-area category filter
+
+  // Fetch available areas and categories for autocomplete
+  async function loadFilterOptions() {
+    try {
+      const [areaRes, catRes] = await Promise.all([
+        fetch(API + '/list.php?a=list').then(r => r.json()),
+        fetch(API + '/list.php?c=list').then(r => r.json())
+      ]);
+      if (areaRes.meals) allAreas = areaRes.meals.map(m => m.strArea);
+      if (catRes.meals) allCategories = catRes.meals.map(m => m.strCategory);
+    } catch (e) {
+      // silently fail, autocomplete just won't work
+    }
+  }
+  loadFilterOptions();
 
   function showLoading() {
     grid.innerHTML = '';
@@ -275,43 +298,49 @@ const toolsData = [
 
   async function searchRecipes(query) {
     showLoading();
+    hideAutocomplete();
     try {
       const res = await fetch(API + '/search.php?s=' + encodeURIComponent(query));
       const data = await res.json();
       clearStatus();
-      if (!data.meals) { showStatus('No recipes found for "' + query + '". Try another ingredient.'); return; }
+      if (!data.meals) { showStatus('No recipes found for "' + query + '". Try another ingredient.'); hideDataAreaFilter(); return; }
+      allDisplayedMeals = data.meals;
+      dataAreaActiveFilter = null;
+      updateDataAreaFilter();
       renderRecipeCards(data.meals);
     } catch (e) {
       clearStatus();
       showStatus('Error fetching recipes. Please try again.');
+      hideDataAreaFilter();
     }
   }
 
   async function searchByArea(area) {
     showLoading();
+    hideAutocomplete();
     currentCuisine = area;
     try {
       const res = await fetch(API + '/filter.php?a=' + encodeURIComponent(area));
       const data = await res.json();
       clearStatus();
-      if (!data.meals) { showStatus('No recipes found for ' + area); return; }
+      if (!data.meals) { showStatus('No recipes found for ' + area); hideDataAreaFilter(); return; }
       
       let meals = data.meals;
       
-      // If a meal category is selected, filter by it
-      if (selectedMealCategory) {
-        meals = await filterByMealCategory(meals);
-      }
-      
       if (meals.length === 0) {
         showStatus('No recipes match your filters.');
+        hideDataAreaFilter();
         return;
       }
       
+      allDisplayedMeals = meals;
+      dataAreaActiveFilter = null;
+      updateDataAreaFilter();
       renderRecipeCards(meals.slice(0, 20));
     } catch (e) {
       clearStatus();
       showStatus('Error fetching recipes. Please try again.');
+      hideDataAreaFilter();
     }
   }
 
@@ -346,6 +375,7 @@ const toolsData = [
     }
     
     showLoading();
+    hideAutocomplete();
     
     try {
       const res = await fetch(API + '/filter.php?c=' + encodeURIComponent(selectedMealCategory));
@@ -354,26 +384,34 @@ const toolsData = [
       
       if (!data.meals || data.meals.length === 0) {
         showStatus('No recipes found for ' + selectedMealCategory + '.');
+        hideDataAreaFilter();
         return;
       }
       
+      allDisplayedMeals = data.meals;
+      dataAreaActiveFilter = null;
+      updateDataAreaFilter();
       renderRecipeCards(data.meals.slice(0, 24));
     } catch (e) {
       clearStatus();
       showStatus('Error fetching recipes. Please try again.');
+      hideDataAreaFilter();
     }
   }
 
   function renderRecipeCards(meals) {
-    grid.innerHTML = meals.map(m => `
-      <div class="recipe-card" data-id="${m.idMeal}">
-        <img src="${m.strMealThumb}" alt="${m.strMeal}" loading="lazy">
-        <div class="recipe-card-body">
-          <div class="recipe-card-title">${m.strMeal}</div>
-          ${m.strArea ? '<div class="recipe-card-area">' + m.strArea + '</div>' : ''}
+    grid.innerHTML = meals.map(m => {
+      const area = m.strArea || m._area || '';
+      return `
+        <div class="recipe-card" data-id="${m.idMeal}">
+          <img src="${m.strMealThumb}" alt="${m.strMeal}" loading="lazy">
+          <div class="recipe-card-body">
+            <div class="recipe-card-title">${m.strMeal}</div>
+            ${area ? '<div class="recipe-card-area">' + area + '</div>' : ''}
+          </div>
         </div>
-      </div>
-    `).join('');
+      `;
+    }).join('');
 
     // Click to view details
     grid.querySelectorAll('.recipe-card').forEach(card => {
@@ -432,6 +470,7 @@ const toolsData = [
   // Load random recipes on page load
   async function loadRandomRecipes(count = 12) {
     showLoading();
+    hideAutocomplete();
     try {
       const promises = Array.from({ length: count }, () =>
         fetch(API + '/random.php').then(r => r.json())
@@ -441,12 +480,320 @@ const toolsData = [
         .filter(r => r.meals && r.meals[0])
         .map(r => r.meals[0]);
       clearStatus();
-      if (meals.length > 0) renderRecipeCards(meals);
+      if (meals.length > 0) {
+        allDisplayedMeals = meals;
+        dataAreaActiveFilter = null;
+        updateDataAreaFilter();
+        renderRecipeCards(meals);
+      }
       else showStatus('Click Search or pick a category to find recipes.');
     } catch (e) {
       clearStatus();
       showStatus('Click Search or pick a category to find recipes.');
+      hideDataAreaFilter();
     }
+  }
+
+  // ---- Autocomplete for search bar ----
+  let highlightedIndex = -1;
+
+  function showAutocomplete(suggestions) {
+    if (!autocompleteEl) return;
+    if (suggestions.length === 0) {
+      hideAutocomplete();
+      return;
+    }
+
+    // Group suggestions by type
+    const groups = {};
+    suggestions.forEach(s => {
+      if (!groups[s.type]) groups[s.type] = [];
+      groups[s.type].push(s);
+    });
+
+    const typeLabels = { country: 'Countries', category: 'Categories', ingredient: 'Ingredients' };
+    const typeIcons = { country: '🌍', category: '📂', ingredient: '🥘' };
+
+    let html = '';
+    let globalIdx = 0;
+    for (const type of ['country', 'category', 'ingredient']) {
+      if (!groups[type] || groups[type].length === 0) continue;
+      html += `<div class="recipe-autocomplete-group">`;
+      html += `<div class="recipe-autocomplete-group-label">${typeLabels[type]}</div>`;
+      groups[type].forEach(s => {
+        const highlighted = s.text.replace(new RegExp('(' + s.query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi'), '<strong>$1</strong>');
+        html += `<div class="recipe-autocomplete-item" data-index="${globalIdx}" data-value="${s.text}" data-type="${s.type}">`;
+        html += `<span class="ac-icon">${typeIcons[type]}</span>`;
+        html += `<span class="ac-text">${highlighted}</span>`;
+        html += `<span class="ac-type">${type}</span>`;
+        html += `</div>`;
+        globalIdx++;
+      });
+      html += `</div>`;
+    }
+
+    autocompleteEl.innerHTML = html;
+    autocompleteEl.classList.add('open');
+    highlightedIndex = -1;
+
+    // Click handlers
+    autocompleteEl.querySelectorAll('.recipe-autocomplete-item').forEach(item => {
+      item.addEventListener('mousedown', (e) => {
+        e.preventDefault();
+        const value = item.dataset.value;
+        const type = item.dataset.type;
+        input.value = value;
+        hideAutocomplete();
+        triggerSearchByType(value, type);
+      });
+    });
+  }
+
+  function hideAutocomplete() {
+    if (autocompleteEl) {
+      autocompleteEl.classList.remove('open');
+      autocompleteEl.innerHTML = '';
+    }
+    highlightedIndex = -1;
+  }
+
+  function triggerSearchByType(value, type) {
+    resetAllFilters();
+    if (type === 'country') {
+      // Activate the matching cuisine button if it exists
+      const matchBtn = Array.from(catBtns).find(b => b.dataset.area.toLowerCase() === value.toLowerCase());
+      if (matchBtn) {
+        matchBtn.classList.add('active');
+        currentCuisine = value;
+        searchByArea(value);
+      } else {
+        searchByArea(value);
+      }
+    } else if (type === 'category') {
+      // Activate the matching meal category button
+      const matchBtn = Array.from(mealCatBtns).find(b => b.dataset.meal.toLowerCase() === value.toLowerCase());
+      if (matchBtn) {
+        matchBtn.classList.add('active');
+        selectedMealCategory = value;
+        searchByMealCategory();
+      } else {
+        // Search by name as fallback
+        searchRecipes(value);
+      }
+    } else {
+      searchRecipes(value);
+    }
+  }
+
+  // Autocomplete input handler with debounce
+  let acDebounce;
+  input.addEventListener('input', () => {
+    clearTimeout(acDebounce);
+    const query = input.value.trim();
+    if (query.length < 1) {
+      hideAutocomplete();
+      return;
+    }
+
+    acDebounce = setTimeout(() => {
+      const q = query.toLowerCase();
+      const suggestions = [];
+
+      // Match countries/areas
+      allAreas.filter(a => a.toLowerCase().includes(q)).slice(0, 5).forEach(a => {
+        suggestions.push({ text: a, type: 'country', query: q });
+      });
+
+      // Match categories
+      allCategories.filter(c => c.toLowerCase().includes(q)).slice(0, 5).forEach(c => {
+        suggestions.push({ text: c, type: 'category', query: q });
+      });
+
+      // Common ingredients for autocomplete suggestions
+      const commonIngredients = [
+        'chicken', 'beef', 'salmon', 'pasta', 'rice', 'egg', 'cheese',
+        'garlic', 'onion', 'tomato', 'potato', 'mushroom', 'shrimp',
+        'pork', 'lamb', 'turkey', 'bacon', 'avocado', 'spinach', 'corn',
+        'chocolate', 'lemon', 'ginger', 'basil', 'pepper'
+      ];
+      commonIngredients.filter(i => i.includes(q) && !suggestions.some(s => s.text.toLowerCase() === i)).slice(0, 5).forEach(i => {
+        suggestions.push({ text: i, type: 'ingredient', query: q });
+      });
+
+      showAutocomplete(suggestions);
+    }, 150);
+  });
+
+  // Keyboard navigation for autocomplete
+  input.addEventListener('keydown', (e) => {
+    if (!autocompleteEl || !autocompleteEl.classList.contains('open')) {
+      if (e.key === 'Enter') {
+        const q = input.value.trim();
+        if (q) {
+          resetAllFilters();
+          hideAutocomplete();
+          searchRecipes(q);
+        }
+      }
+      return;
+    }
+
+    const items = autocompleteEl.querySelectorAll('.recipe-autocomplete-item');
+    if (items.length === 0) return;
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      highlightedIndex = Math.min(highlightedIndex + 1, items.length - 1);
+      items.forEach((item, i) => item.classList.toggle('highlighted', i === highlightedIndex));
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      highlightedIndex = Math.max(highlightedIndex - 1, 0);
+      items.forEach((item, i) => item.classList.toggle('highlighted', i === highlightedIndex));
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      if (highlightedIndex >= 0 && items[highlightedIndex]) {
+        const item = items[highlightedIndex];
+        input.value = item.dataset.value;
+        hideAutocomplete();
+        triggerSearchByType(item.dataset.value, item.dataset.type);
+      } else {
+        const q = input.value.trim();
+        if (q) {
+          resetAllFilters();
+          hideAutocomplete();
+          searchRecipes(q);
+        }
+      }
+    } else if (e.key === 'Escape') {
+      hideAutocomplete();
+    }
+  });
+
+  // Hide autocomplete on outside click
+  document.addEventListener('click', (e) => {
+    if (autocompleteEl && !autocompleteEl.contains(e.target) && e.target !== input) {
+      hideAutocomplete();
+    }
+  });
+
+  // ---- Data Area Category Filter ----
+  async function updateDataAreaFilter() {
+    if (!dataAreaFilter || !dataAreaFilterOptions) return;
+
+    if (allDisplayedMeals.length === 0) {
+      hideDataAreaFilter();
+      return;
+    }
+
+    // Fetch details for all displayed meals to get both category and area
+    const mealDetails = [];
+
+    const batchSize = 10;
+    for (let i = 0; i < Math.min(allDisplayedMeals.length, 40); i += batchSize) {
+      const batch = allDisplayedMeals.slice(i, i + batchSize);
+      const details = await Promise.all(
+        batch.map(m =>
+          fetch(API + '/lookup.php?i=' + m.idMeal)
+            .then(r => r.json())
+            .catch(() => null)
+        )
+      );
+      details.forEach((d, idx) => {
+        if (d && d.meals && d.meals[0]) {
+          mealDetails.push({
+            ...batch[idx],
+            _category: d.meals[0].strCategory || 'Other',
+            _area: d.meals[0].strArea || ''
+          });
+        }
+      });
+    }
+
+    allDisplayedMeals._details = mealDetails;
+
+    // Decide which dimension to show as filter chips:
+    // If a meal type is selected (e.g. Chicken), show countries
+    // If a country is selected, show categories
+    // Otherwise show categories by default
+    let dimension, dimensionKey, filterLabel;
+    if (selectedMealCategory) {
+      dimension = 'area';
+      dimensionKey = '_area';
+      filterLabel = 'Filter results by country';
+    } else {
+      dimension = 'category';
+      dimensionKey = '_category';
+      filterLabel = 'Filter results by category';
+    }
+
+    // Count by chosen dimension
+    const countMap = {};
+    mealDetails.forEach(m => {
+      const val = m[dimensionKey];
+      if (!val) return;
+      countMap[val] = (countMap[val] || 0) + 1;
+    });
+
+    const entries = Object.entries(countMap).sort((a, b) => b[1] - a[1]);
+
+    if (entries.length <= 1) {
+      hideDataAreaFilter();
+      return;
+    }
+
+    // Update label
+    const labelEl = dataAreaFilter.querySelector('.data-area-filter-label');
+    if (labelEl) labelEl.textContent = filterLabel;
+
+    // Render filter chips
+    let html = `<button class="data-area-filter-chip ${!dataAreaActiveFilter ? 'active' : ''}" data-cat="">All<span class="chip-count">(${mealDetails.length})</span></button>`;
+    entries.forEach(([val, count]) => {
+      html += `<button class="data-area-filter-chip ${dataAreaActiveFilter === val ? 'active' : ''}" data-cat="${val}">${val}<span class="chip-count">(${count})</span></button>`;
+    });
+
+    dataAreaFilterOptions.innerHTML = html;
+    dataAreaFilter.style.display = 'block';
+
+    // Click handlers
+    dataAreaFilterOptions.querySelectorAll('.data-area-filter-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        const cat = chip.dataset.cat;
+        if (cat === '') {
+          dataAreaActiveFilter = null;
+          dataAreaFilterOptions.querySelectorAll('.data-area-filter-chip').forEach(c => c.classList.remove('active'));
+          chip.classList.add('active');
+          renderRecipeCards(mealDetails.slice(0, 24));
+        } else {
+          dataAreaActiveFilter = cat;
+          dataAreaFilterOptions.querySelectorAll('.data-area-filter-chip').forEach(c => c.classList.remove('active'));
+          chip.classList.add('active');
+          const filtered = mealDetails.filter(m => m[dimensionKey] === cat);
+          if (filtered.length === 0) {
+            showStatus('No recipes in this filter.');
+          } else {
+            clearStatus();
+            renderRecipeCards(filtered);
+          }
+        }
+      });
+    });
+  }
+
+  function hideDataAreaFilter() {
+    if (dataAreaFilter) dataAreaFilter.style.display = 'none';
+    allDisplayedMeals = [];
+    dataAreaActiveFilter = null;
+  }
+
+  if (dataAreaClearBtn) {
+    dataAreaClearBtn.addEventListener('click', () => {
+      dataAreaActiveFilter = null;
+      if (allDisplayedMeals.length > 0) {
+        clearStatus();
+        renderRecipeCards(allDisplayedMeals.slice(0, 24));
+        updateDataAreaFilter();
+      }
+    });
   }
 
   // Reset all filters
@@ -468,17 +815,8 @@ const toolsData = [
     const q = input.value.trim();
     if (q) {
       resetAllFilters();
+      hideAutocomplete();
       searchRecipes(q);
-    }
-  });
-
-  input.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') {
-      const q = input.value.trim();
-      if (q) {
-        resetAllFilters();
-        searchRecipes(q);
-      }
     }
   });
 
@@ -490,17 +828,16 @@ const toolsData = [
         btn.classList.remove('active');
         currentCuisine = null;
         input.value = '';
-        // If a meal category is selected, keep it
-        if (selectedMealCategory) {
-          searchByMealCategory();
-        } else {
-          loadRandomRecipes(12);
-        }
+        loadRandomRecipes(12);
       } else {
+        // Deselect all cuisine buttons AND all meal category buttons (mutually exclusive)
         catBtns.forEach(b => b.classList.remove('active'));
+        mealCatBtns.forEach(b => b.classList.remove('active'));
+        selectedMealCategory = null;
         btn.classList.add('active');
         currentCuisine = btn.dataset.area;
         input.value = '';
+        hideAutocomplete();
         searchByArea(btn.dataset.area);
       }
     });
@@ -514,16 +851,17 @@ const toolsData = [
         btn.classList.remove('active');
         selectedMealCategory = null;
       } else {
-        // Select (single select - deselect others)
+        // Deselect all meal category buttons AND all cuisine buttons (mutually exclusive)
         mealCatBtns.forEach(b => b.classList.remove('active'));
+        catBtns.forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         selectedMealCategory = btn.dataset.meal;
+        currentCuisine = null;
       }
       
-      // Reset search input and cuisine
+      // Reset search input
       input.value = '';
-      catBtns.forEach(b => b.classList.remove('active'));
-      currentCuisine = null;
+      hideAutocomplete();
       
       // Search based on current state
       if (!selectedMealCategory) {

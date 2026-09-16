@@ -62,6 +62,13 @@
   position: sticky;
   top: var(--nav-height);
   z-index: 100;
+  transition: top 0.35s ease;
+}
+
+/* When the nav is hidden (slides up), pull the tabs bar to the very top so
+   there's no floating gap where the nav used to be. */
+.nav.hidden ~ .anime-tabs-bar {
+  top: 0;
 }
 
 .anime-tabs-inner {
@@ -115,6 +122,14 @@
   display: flex;
   gap: 32px;
   align-items: flex-start;
+}
+
+/* Full-width layout — used when the top10 sidebar is hidden (view-all / non-season tabs). */
+.anime-main-layout.full-width {
+  gap: 0;
+}
+.anime-main-layout.full-width .anime-content-area {
+  width: 100%;
 }
 
 /* --- Content Area --- */

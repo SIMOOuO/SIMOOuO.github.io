@@ -39,19 +39,23 @@
     <!-- Recipe Search -->
     <section class="recipe-search-section">
         <div class="recipe-search-bar">
-            <input type="text" class="recipe-input" id="recipeInput" placeholder="Try: chicken, pasta, salmon, salad...">
+            <div class="recipe-input-wrap">
+                <input type="text" class="recipe-input" id="recipeInput" placeholder="Try: chicken, pasta, salmon, salad, Japanese, Dessert..." autocomplete="off">
+                <div class="recipe-autocomplete" id="recipeAutocomplete"></div>
+            </div>
             <button class="recipe-btn" id="recipeSearchBtn">Search</button>
         </div>
 
         <div class="recipe-categories" id="recipeCategories">
             <button class="recipe-cat-btn" data-area="Chinese">Chinese</button>
+            <button class="recipe-cat-btn" data-area="Malaysia">Malaysia</button>
             <button class="recipe-cat-btn" data-area="Italian">Italian</button>
             <button class="recipe-cat-btn" data-area="Japanese">Japanese</button>
             <button class="recipe-cat-btn" data-area="Mexican">Mexican</button>
-            <button class="recipe-cat-btn" data-area="Indian">Indian</button>
+            <button class="recipe-cat-btn" data-area="India">Indian</button>
             <button class="recipe-cat-btn" data-area="Thai">Thai</button>
-            <button class="recipe-cat-btn" data-area="American">American</button>
-            <button class="recipe-cat-btn" data-area="French">French</button>
+            <button class="recipe-cat-btn" data-area="United States">American</button>
+            <button class="recipe-cat-btn" data-area="France">French</button>
         </div>
 
         <div class="meal-categories-section">
@@ -75,6 +79,16 @@
         </div>
 
         <div id="recipeStatus"></div>
+
+        <!-- Data Area Category Filter -->
+        <div class="data-area-filter" id="dataAreaFilter" style="display:none;">
+            <div class="data-area-filter-header">
+                <span class="data-area-filter-label">Filter results by category</span>
+                <button class="data-area-clear-btn" id="dataAreaClearBtn">Clear filter</button>
+            </div>
+            <div class="data-area-filter-options" id="dataAreaFilterOptions"></div>
+        </div>
+
         <div class="recipe-grid" id="recipeGrid"></div>
     </section>
 

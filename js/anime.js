@@ -1,6 +1,13 @@
 // ============================================
-// ANIME PAGE — All JavaScript (Sorai-style)
+// ANIME PAGE — Now backed by @mateoaranda/jikanjs (via esm.sh)
 // ============================================
+
+// Local browser port of @mateoaranda/jikanjs.
+// The original library depends on Node's `https` module which the browser
+// doesn't provide. `lib/util/Request.js` here re-implements the same class
+// interface using the browser's native fetch(). All jikanjs function names,
+// argument order and defaults are preserved (see js/lib/jikan.js).
+import jikanjs from './lib/jikan.js';
 
 (function initAnimeExplorer() {
   const input = document.getElementById('animeInput');
@@ -13,60 +20,94 @@
   const pagination = document.getElementById('animePagination');
   const heroBg = document.getElementById('animeHeroBg');
   const tabs = document.querySelectorAll('.anime-tab');
-  const filterBtns = document.querySelectorAll('.anime-filter-btn');
   const top10List = document.getElementById('top10List');
   const sectionTitle = document.getElementById('sectionTitle');
   const viewAllLink = document.getElementById('viewAllLink');
 
   if (!grid) return;
 
-  const API = 'https://api.jikan.moe/v4';
   let currentTab = 'season';
-  let selectedGenre = '';
   let currentPage = 1;
   let lastQuery = '';
+  let fullMode = false;
   const ITEMS_PER_PAGE = 20;
 
-  // Rate limiter for Jikan API (3 req/sec)
-  let lastRequestTime = 0;
-  async function apiFetch(url) {
-    const now = Date.now();
-    const diff = now - lastRequestTime;
-    if (diff < 350) {
-      await new Promise(r => setTimeout(r, 350 - diff));
-    }
-    lastRequestTime = Date.now();
-    const res = await fetch(url);
-    if (res.status === 429) {
-      await new Promise(r => setTimeout(r, 1500));
-      return apiFetch(url);
-    }
-    return res;
+  // Remembers the last action so the Refresh button (shown on error) can retry it.
+  let lastAction = null; // () => Promise<void>
+
+  const mainLayout = document.querySelector('.anime-main-layout');
+  const sidebarRight = document.querySelector('.anime-sidebar-right');
+
+  function applyViewMode() {
+    if (sidebarRight) sidebarRight.style.display = fullMode ? 'none' : '';
+    if (viewAllLink) viewAllLink.style.display = fullMode ? 'none' : '';
+    if (mainLayout) mainLayout.classList.toggle('full-width', fullMode);
+  }
+
+  // --- Throttled + retrying jikanjs wrapper ---
+  // Jikan is rate-limited to ~3 req/sec. We serialize calls with a 400ms gap
+  // and retry once on transient errors (429/504 from MAL upstream).
+  let apiChain = Promise.resolve();
+  let lastCallAt = 0;
+
+  function callJikan(method, args) {
+    const run = async () => {
+      const now = Date.now();
+      const gap = now - lastCallAt;
+      if (gap < 400) await new Promise(r => setTimeout(r, 400 - gap));
+      lastCallAt = Date.now();
+      try {
+        return await jikanjs[method](...args);
+      } catch (e) {
+        // Retry once after a longer wait — 504/429 are usually transient
+        await new Promise(r => setTimeout(r, 1500));
+        lastCallAt = Date.now();
+        return await jikanjs[method](...args);
+      }
+    };
+    // Serialize to guarantee the 400ms spacing even under concurrent calls
+    const next = apiChain.then(run, run);
+    apiChain = next.catch(() => {}); // don't let one failure poison the chain
+    return next;
   }
 
   function showLoading() {
     grid.innerHTML = '';
     status.innerHTML = '<div class="api-result-loading"><div class="recipe-loading-spinner"></div></div>';
   }
-
   function showStatus(msg) {
     grid.innerHTML = '';
     status.innerHTML = '<div class="api-result-loading">' + msg + '</div>';
   }
-
   function clearStatus() { status.innerHTML = ''; }
 
-  // --- Load Top 10 Sidebar ---
+  // Renders an error message with a Refresh button that re-runs `lastAction`.
+  function showError(msg) {
+    grid.innerHTML = '';
+    pagination.innerHTML = '';
+    status.innerHTML =
+      '<div class="anime-error-box">' +
+        '<div class="anime-error-msg">' + msg + '</div>' +
+        '<button type="button" id="animeRefreshBtn" class="anime-refresh-btn">' +
+          '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10"/><path d="M20.49 15a9 9 0 0 1-14.85 3.36L1 14"/></svg>' +
+          'Refresh' +
+        '</button>' +
+      '</div>';
+    const btn = document.getElementById('animeRefreshBtn');
+    if (btn) btn.addEventListener('click', () => { if (lastAction) lastAction(); });
+  }
+
+  // --- Top 10 Sidebar ---
   async function loadTop10() {
     if (!top10List) return;
     try {
-      const res = await apiFetch(API + '/top/anime?limit=10');
-      const data = await res.json();
-      if (data.data && data.data.length > 0) {
-        top10List.innerHTML = data.data.map((item, i) => {
+      // jikanjs.loadTop('anime') — returns first page (25 items); we slice to 10
+      const data = await callJikan('loadTop', ['anime']);
+      const list = (data && data.data) ? data.data.slice(0, 10) : [];
+      if (list.length > 0) {
+        top10List.innerHTML = list.map((item, i) => {
           const rankClass = i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : '';
           const type = item.type || 'TV';
-          const typeClass = type.toLowerCase();
           return '<div class="top10-item" data-id="' + item.mal_id + '">' +
             '<span class="top10-rank ' + rankClass + '">' + String(i + 1).padStart(2, '0') + '</span>' +
             '<img class="top10-img" src="' + item.images.jpg.image_url + '" alt="" loading="lazy">' +
@@ -84,49 +125,39 @@
     } catch (e) { console.error('Top 10 load failed', e); }
   }
 
-  // --- Load Current Tab ---
-  async function loadCurrentTab(page, showAll = false) {
+  // --- Route each tab to the right jikanjs call ---
+  function fetchForCurrentTab(page) {
+    if (currentTab === 'season')   return callJikan('loadCurrentSeason',  [page]);
+    if (currentTab === 'upcoming') return callJikan('loadUpcomingSeason', [page]);
+    if (currentTab === 'popular')  return callJikan('loadTop', ['anime', page, undefined, 'bypopularity']);
+    if (currentTab === 'top')      return callJikan('loadTop', ['anime', page]);
+    return callJikan('loadTop', ['anime', page]);
+  }
+
+  // --- Load Current Tab (server-side pagination via jikanjs) ---
+  async function loadCurrentTab(page, showAll) {
+    // Remember this call so the Refresh button can retry the exact same request.
+    lastAction = () => loadCurrentTab(page, showAll);
+
     showLoading();
     currentPage = page || 1;
     pagination.innerHTML = '';
 
-    // If showing all, hide view all link and show filters
-    if (showAll) {
-      if (viewAllLink) viewAllLink.style.display = 'none';
-      const filtersEl = document.getElementById('animeFilters');
-      if (filtersEl) filtersEl.style.display = 'flex';
-    }
+    if (showAll === true) fullMode = true;
+    applyViewMode();
 
     try {
-      let url = '';
-
-      if (currentTab === 'season') {
-        url = API + '/seasons/now?limit=' + ITEMS_PER_PAGE + '&page=' + currentPage;
-        if (selectedGenre) url += '&genres=' + selectedGenre;
-      } else if (currentTab === 'popular') {
-        url = API + '/top/anime?filter=bypopularity&limit=' + ITEMS_PER_PAGE + '&page=' + currentPage;
-        if (selectedGenre) url += '&genres=' + selectedGenre;
-      } else if (currentTab === 'upcoming') {
-        url = API + '/top/anime?filter=upcoming&limit=' + ITEMS_PER_PAGE + '&page=' + currentPage;
-        if (selectedGenre) url += '&genres=' + selectedGenre;
-      } else if (currentTab === 'top') {
-        url = API + '/top/anime?limit=' + ITEMS_PER_PAGE + '&page=' + currentPage;
-        if (selectedGenre) url += '&genres=' + selectedGenre;
-      }
-
-      const res = await apiFetch(url);
-      const data = await res.json();
+      const data = await fetchForCurrentTab(currentPage);
       clearStatus();
-
-      if (data.data && data.data.length > 0) {
+      if (data && data.data && data.data.length > 0) {
         renderAnimeCards(data.data);
         renderPagination(data.pagination);
       } else {
         showStatus('No results found');
       }
     } catch (e) {
-      clearStatus();
-      showStatus('Error loading data. Please try again.');
+      showError('Failed to load. The Jikan API may be temporarily unavailable.');
+      console.error(e);
     }
   }
 
@@ -157,7 +188,7 @@
     });
   }
 
-  // --- Pagination ---
+  // --- Pagination (server-side via Jikan's pagination.last_visible_page) ---
   function renderPagination(paginationData) {
     if (!paginationData || !paginationData.last_visible_page) {
       pagination.innerHTML = '';
@@ -165,7 +196,6 @@
     }
     const totalPages = paginationData.last_visible_page;
     let html = '';
-    
     html += '<button class="anime-pagination-btn" ' + (currentPage === 1 ? 'disabled' : '') + ' data-page="' + (currentPage - 1) + '">&lt;</button>';
 
     const maxVisible = 5;
@@ -209,12 +239,10 @@
     pagination.innerHTML = '';
 
     try {
-      const url = API + '/anime?q=' + encodeURIComponent(query) + '&limit=' + ITEMS_PER_PAGE + '&page=' + currentPage;
-      const res = await apiFetch(url);
-      const data = await res.json();
+      // jikanjs.search(type, query, limit, params) — pass page via params.
+      const data = await callJikan('search', ['anime', query, 25, { page: currentPage, sfw: true }]);
       clearStatus();
-
-      if (data.data && data.data.length > 0) {
+      if (data && data.data && data.data.length > 0) {
         renderAnimeCards(data.data);
         renderPagination(data.pagination);
       } else {
@@ -233,16 +261,16 @@
       modal.classList.add('open');
       document.getElementById('animeModalClose').addEventListener('click', () => modal.classList.remove('open'));
 
-      const res = await apiFetch(API + '/anime/' + id + '/full');
-      const data = await res.json();
-      const item = data.data;
+      // jikanjs.loadAnime(id, 'full') maps to /anime/{id}/full
+      const data = await callJikan('loadAnime', [id, 'full']);
+      const item = data && data.data;
+      if (!item) throw new Error('no data');
 
-      // Load recommendations
+      // Recommendations — jikanjs.loadAnime(id, 'recommendations')
       let recsHtml = '';
       try {
-        const recRes = await apiFetch(API + '/anime/' + id + '/recommendations');
-        const recData = await recRes.json();
-        if (recData.data && recData.data.length > 0) {
+        const recData = await callJikan('loadAnime', [id, 'recommendations']);
+        if (recData && recData.data && recData.data.length > 0) {
           recsHtml = '<h3>Recommendations</h3><div style="display:flex;flex-wrap:wrap;gap:8px;">' +
             recData.data.slice(0, 6).map(r => {
               const entry = r.entry;
@@ -275,7 +303,6 @@
         '</div>';
 
       document.getElementById('animeModalClose').addEventListener('click', () => modal.classList.remove('open'));
-
       modalContent.querySelectorAll('.rec-anime').forEach(el => {
         el.addEventListener('click', () => showAnimeDetail(el.dataset.id));
       });
@@ -293,10 +320,8 @@
         const query = input.value.trim();
         if (query.length < 2) { suggestions.classList.remove('show'); return; }
         try {
-          const url = API + '/anime?q=' + encodeURIComponent(query) + '&limit=5';
-          const res = await apiFetch(url);
-          const data = await res.json();
-          if (data.data && data.data.length > 0) {
+          const data = await callJikan('search', ['anime', query, 5, {}]);
+          if (data && data.data && data.data.length > 0) {
             suggestions.innerHTML = data.data.map(item => {
               const name = item.title;
               const highlighted = name.replace(new RegExp(query, 'i'), '<strong>' + query + '</strong>');
@@ -325,9 +350,8 @@
   async function loadHeroBackground() {
     if (!heroBg) return;
     try {
-      const res = await apiFetch(API + '/top/anime?limit=1');
-      const data = await res.json();
-      if (data.data && data.data.length > 0) {
+      const data = await callJikan('loadTop', ['anime']);
+      if (data && data.data && data.data.length > 0) {
         heroBg.style.backgroundImage = 'url(' + data.data[0].images.jpg.large_image_url + ')';
       }
     } catch (e) {}
@@ -340,25 +364,10 @@
       tab.classList.add('active');
       currentTab = tab.dataset.tab;
 
-      // Update section title
-      const titles = {
-        'season': 'IN SEASON',
-        'popular': 'MOST POPULAR',
-        'upcoming': 'UPCOMING',
-        'top': 'TOP RATED'
-      };
+      const titles = { 'season': 'IN SEASON', 'popular': 'MOST POPULAR', 'upcoming': 'UPCOMING', 'top': 'TOP RATED' };
       if (sectionTitle) sectionTitle.textContent = titles[currentTab] || 'ANIME';
 
-      // Show/hide filters for certain tabs
-      const filtersEl = document.getElementById('animeFilters');
-      if (filtersEl) {
-        filtersEl.style.display = (currentTab === 'season') ? 'none' : 'flex';
-      }
-
-      // Update view all link
-      if (viewAllLink) {
-        viewAllLink.style.display = (currentTab === 'season') ? 'block' : 'none';
-      }
+      fullMode = (currentTab !== 'season');
 
       input.value = '';
       lastQuery = '';
@@ -374,8 +383,7 @@
   if (viewAllLink) {
     viewAllLink.addEventListener('click', (e) => {
       e.preventDefault();
-      // Load all items for current tab with pagination
-      loadCurrentTab(1, true); // true = show all (full pagination)
+      loadCurrentTab(1, true);
     });
   }
 
@@ -390,9 +398,6 @@
       loadCurrentTab(1);
     });
   });
-
-  // --- Top 10 Tab Switching (removed - just show all 10) ---
-  // Weekly/Monthly tabs removed as requested
 
   // --- Search Button ---
   if (searchBtn) {
@@ -428,6 +433,8 @@
   }
 
   // --- Init ---
+  fullMode = false;
+  applyViewMode();
   loadHeroBackground();
   loadTop10();
   loadCurrentTab(1);
