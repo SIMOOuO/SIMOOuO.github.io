@@ -417,6 +417,7 @@
 // ================================================================
 // COUNTRY API (countries.dev)
 // https://countries.dev/
+// Endpoints: /name/{name}, /alpha/{code}, /countries, /region/{region}, /currency/{code}, /lang/{code}, /callingcode/{code}
 // ================================================================
 (function initCountrySearch() {
   const input = document.getElementById('countryInput');
@@ -425,15 +426,21 @@
   
   if (!input || !btn) return;
   
-  // Hardcoded list of common countries for autocomplete
-  const commonCountries = [
-    'Afghanistan', 'Albania', 'Algeria', 'Argentina', 'Australia', 'Austria', 'Bangladesh', 'Belgium', 'Brazil', 'Canada',
-    'Chile', 'China', 'Colombia', 'Czech Republic', 'Denmark', 'Egypt', 'Finland', 'France', 'Germany', 'Greece',
-    'Hungary', 'India', 'Indonesia', 'Iran', 'Iraq', 'Ireland', 'Israel', 'Italy', 'Japan', 'Kenya',
-    'Malaysia', 'Mexico', 'Morocco', 'Netherlands', 'New Zealand', 'Nigeria', 'Norway', 'Pakistan', 'Peru', 'Philippines',
-    'Poland', 'Portugal', 'Romania', 'Russia', 'Saudi Arabia', 'Singapore', 'South Africa', 'South Korea', 'Spain', 'Sweden',
-    'Switzerland', 'Thailand', 'Turkey', 'Ukraine', 'United Arab Emirates', 'United Kingdom', 'United States', 'Vietnam'
-  ];
+  // Store all countries for autocomplete and random selection
+  let allCountries = [];
+  
+  // Fetch all countries on init for autocomplete
+  async function loadAllCountries() {
+    try {
+      const res = await fetch('https://countries.dev/countries');
+      const data = await res.json();
+      // API returns array directly
+      allCountries = Array.isArray(data) ? data : [];
+    } catch (e) {
+      console.error('Failed to load countries list');
+    }
+  }
+  loadAllCountries();
   
   // Show autocomplete suggestions
   const suggestions = document.createElement('div');
@@ -442,13 +449,21 @@
   input.parentNode.appendChild(suggestions);
   
   function showCountrySuggestions(query) {
-    if (!query || query.length < 2) {
+    if (!query || query.length < 2 || allCountries.length === 0) {
       suggestions.classList.remove('show');
       return;
     }
     
-    const matches = commonCountries
-      .filter(name => name.toLowerCase().startsWith(query.toLowerCase()))
+    const q = query.toLowerCase();
+    
+    // Match by name, alpha2Code, or alpha3Code
+    const matches = allCountries
+      .filter(c => {
+        const name = (c.name || '').toLowerCase();
+        const alpha2 = (c.alpha2Code || '').toLowerCase();
+        const alpha3 = (c.alpha3Code || '').toLowerCase();
+        return name.includes(q) || alpha2 === q || alpha3 === q;
+      })
       .slice(0, 8);
     
     if (matches.length === 0) {
@@ -456,9 +471,11 @@
       return;
     }
     
-    suggestions.innerHTML = matches.map(name => {
-      const highlighted = name.replace(new RegExp(`^${query}`, 'i'), `<strong>${query}</strong>`);
-      return `<div class="autocomplete-item" data-name="${name}">${highlighted}</div>`;
+    suggestions.innerHTML = matches.map(c => {
+      const name = c.name;
+      const code = c.alpha2Code || '';
+      const highlighted = name.replace(new RegExp(query, 'i'), `<strong>${query}</strong>`);
+      return `<div class="autocomplete-item" data-name="${name}" data-code="${code}">${highlighted}${code ? ` <span style="color:var(--text-faint);font-size:11px;">(${code})</span>` : ''}</div>`;
     }).join('');
     
     suggestions.classList.add('show');
@@ -480,30 +497,87 @@
     result.innerHTML = '<div class="api-result-loading"><div class="recipe-loading-spinner"></div></div>';
     
     try {
-      // Use countries.dev API
-      const res = await fetch(`https://countries.dev/api/v1/countries/${encodeURIComponent(query)}`);
+      // Detect if input is an ISO code (2 or 3 uppercase letters)
+      const isAlphaCode = /^[A-Za-z]{2,3}$/.test(query);
+      
+      let url;
+      if (isAlphaCode) {
+        // Use /alpha/{code} endpoint for ISO codes
+        url = `https://countries.dev/alpha/${encodeURIComponent(query.toUpperCase())}`;
+      } else {
+        // Use /name/{name} endpoint for country names
+        url = `https://countries.dev/name/${encodeURIComponent(query)}`;
+      }
+      
+      const res = await fetch(url);
       
       if (!res.ok) {
-        result.innerHTML = '<div class="api-result-empty">Country not found. Try a different name.</div>';
+        result.innerHTML = '<div class="api-result-empty">Country not found. Try a different name or ISO code (e.g. US, JPN).</div>';
         return;
       }
       
-      const country = await res.json();
+      const response = await res.json();
       
+      // API returns an array, get first element
+      const country = Array.isArray(response) ? response[0] : response;
+      
+      if (!country || !country.name) {
+        result.innerHTML = '<div class="api-result-empty">Country not found. Try a different name or ISO code (e.g. US, JPN).</div>';
+        return;
+      }
+      
+      // Parse response - countries.dev uses specific field names
       const name = country.name || query;
+      const nativeName = country.nativeName || '';
       const capital = country.capital || 'N/A';
-      const currency = country.currency ? `${country.currency.symbol} ${country.currency.code}` : 'N/A';
-      const phoneCode = country.phone_code || 'N/A';
-      const flag = country.flag ? `<img src="${country.flag}" alt="${name} flag" class="country-flag">` : '';
+      
+      // Currency is an array of objects
+      let currency = 'N/A';
+      if (country.currencies && Array.isArray(country.currencies) && country.currencies.length > 0) {
+        const curr = country.currencies[0];
+        currency = `${curr.symbol || ''} ${curr.code}`.trim();
+      }
+      
+      // Calling codes is an array
+      let phoneCode = 'N/A';
+      if (country.callingCodes && Array.isArray(country.callingCodes) && country.callingCodes.length > 0) {
+        phoneCode = country.callingCodes[0];
+      }
+      
+      const region = country.region || 'N/A';
+      const subregion = country.subregion || '';
+      const population = country.population ? country.population.toLocaleString() : 'N/A';
+      const area = country.area ? `${country.area.toLocaleString()} km²` : 'N/A';
+      
+      // Languages is an array of objects with 'name' property
+      let languages = 'N/A';
+      if (country.languages && Array.isArray(country.languages) && country.languages.length > 0) {
+        languages = country.languages.map(l => l.name || l).join(', ');
+      }
+      
+      // Flag is an emoji
+      let flag = '';
+      if (country.flag) {
+        flag = `<div style="font-size:64px;margin-bottom:16px;">${country.flag}</div>`;
+      }
+      
+      // ISO codes - use correct field names
+      const alpha2 = country.alpha2Code || '';
+      const alpha3 = country.alpha3Code || '';
       
       result.innerHTML = `
         <div class="country-card">
           ${flag}
           <div class="country-name">${name}</div>
+          ${nativeName && nativeName !== name ? `<div style="font-size:13px;color:var(--text-muted);margin-bottom:12px;">${nativeName}</div>` : ''}
           <div class="country-info">
             <div class="country-info-item">
               <div class="country-label">Capital</div>
               <div class="country-value">${capital}</div>
+            </div>
+            <div class="country-info-item">
+              <div class="country-label">Region</div>
+              <div class="country-value">${region}${subregion ? ' · ' + subregion : ''}</div>
             </div>
             <div class="country-info-item">
               <div class="country-label">Currency</div>
@@ -513,6 +587,24 @@
               <div class="country-label">Phone Code</div>
               <div class="country-value">+${phoneCode}</div>
             </div>
+            <div class="country-info-item">
+              <div class="country-label">Population</div>
+              <div class="country-value">${population}</div>
+            </div>
+            <div class="country-info-item">
+              <div class="country-label">Area</div>
+              <div class="country-value">${area}</div>
+            </div>
+            <div class="country-info-item">
+              <div class="country-label">Languages</div>
+              <div class="country-value">${languages}</div>
+            </div>
+            ${alpha2 || alpha3 ? `
+            <div class="country-info-item">
+              <div class="country-label">ISO Codes</div>
+              <div class="country-value">${alpha2}${alpha3 ? ' / ' + alpha3 : ''}</div>
+            </div>
+            ` : ''}
           </div>
         </div>
       `;
@@ -701,23 +793,34 @@
   // Country random
   const countryRandomBtn = document.getElementById('countryRandomBtn');
   if (countryRandomBtn) {
-    const countries = [
-      'Afghanistan', 'Albania', 'Algeria', 'Argentina', 'Australia', 'Austria', 'Bangladesh', 'Belgium', 'Brazil', 'Canada',
-      'Chile', 'China', 'Colombia', 'Czech Republic', 'Denmark', 'Egypt', 'Finland', 'France', 'Germany', 'Greece',
-      'Hungary', 'India', 'Indonesia', 'Iran', 'Iraq', 'Ireland', 'Israel', 'Italy', 'Japan', 'Kenya',
-      'Malaysia', 'Mexico', 'Morocco', 'Netherlands', 'New Zealand', 'Nigeria', 'Norway', 'Pakistan', 'Peru', 'Philippines',
-      'Poland', 'Portugal', 'Romania', 'Russia', 'Saudi Arabia', 'Singapore', 'South Africa', 'South Korea', 'Spain', 'Sweden',
-      'Switzerland', 'Thailand', 'Turkey', 'Ukraine', 'United Arab Emirates', 'United Kingdom', 'United States', 'Vietnam'
-    ];
-    
     countryRandomBtn.addEventListener('click', () => {
       const input = document.getElementById('countryInput');
       const btn = document.getElementById('countryBtn');
       if (!input || !btn) return;
       
-      const randomCountry = countries[Math.floor(Math.random() * countries.length)];
-      input.value = randomCountry;
-      btn.click();
+      // Try to get countries from the initCountrySearch scope via localStorage or fetch fresh
+      // Since allCountries is in a different scope, we fetch /countries again
+      fetch('https://countries.dev/countries')
+        .then(res => res.json())
+        .then(data => {
+          const countries = Array.isArray(data) ? data : [];
+          if (countries.length > 0) {
+            const randomCountry = countries[Math.floor(Math.random() * countries.length)];
+            input.value = randomCountry.name;
+            btn.click();
+          }
+        })
+        .catch(() => {
+          // Fallback to hardcoded list if API fails
+          const fallbackCountries = [
+            'Japan', 'Thailand', 'United States', 'Germany', 'Brazil', 'Australia',
+            'France', 'Italy', 'Spain', 'Canada', 'Mexico', 'India', 'China',
+            'South Korea', 'United Kingdom', 'Netherlands', 'Sweden', 'Norway'
+          ];
+          const randomCountry = fallbackCountries[Math.floor(Math.random() * fallbackCountries.length)];
+          input.value = randomCountry;
+          btn.click();
+        });
     });
   }
 })();
@@ -735,101 +838,81 @@
   
   if (!input || !suggestions) return;
   
-  // Country to currency mapping
-  const countryCurrencyMap = {
-    'United States': 'USD', 'USA': 'USD', 'US': 'USD',
-    'Eurozone': 'EUR', 'European Union': 'EUR',
-    'Austria': 'EUR', 'Belgium': 'EUR', 'Cyprus': 'EUR', 'Estonia': 'EUR',
-    'Finland': 'EUR', 'France': 'EUR', 'Germany': 'EUR', 'Greece': 'EUR',
-    'Ireland': 'EUR', 'Italy': 'EUR', 'Latvia': 'EUR', 'Lithuania': 'EUR',
-    'Luxembourg': 'EUR', 'Malta': 'EUR', 'Netherlands': 'EUR', 'Portugal': 'EUR',
-    'Slovakia': 'EUR', 'Slovenia': 'EUR', 'Spain': 'EUR',
-    'United Kingdom': 'GBP', 'UK': 'GBP', 'Britain': 'GBP', 'England': 'GBP',
-    'Japan': 'JPY',
-    'China': 'CNY',
-    'South Korea': 'KRW', 'Korea': 'KRW',
-    'Thailand': 'THB',
-    'Australia': 'AUD',
-    'Canada': 'CAD',
-    'Hong Kong': 'HKD',
-    'Singapore': 'SGD',
-    'Malaysia': 'MYR',
-    'Indonesia': 'IDR',
-    'Philippines': 'PHP',
-    'Vietnam': 'VND',
-    'India': 'INR',
-    'New Zealand': 'NZD',
-    'Switzerland': 'CHF',
-    'Sweden': 'SEK',
-    'Norway': 'NOK',
-    'Denmark': 'DKK',
-    'Poland': 'PLN',
-    'Czech Republic': 'CZK', 'Czechia': 'CZK',
-    'Hungary': 'HUF',
-    'Russia': 'RUB',
-    'Turkey': 'TRY',
-    'Brazil': 'BRL',
-    'Mexico': 'MXN',
-    'South Africa': 'ZAR',
-    'United Arab Emirates': 'AED', 'UAE': 'AED', 'Dubai': 'AED',
-    'Saudi Arabia': 'SAR',
-    'Israel': 'ILS'
-  };
+  // Store all countries for filtering
+  let allCountries = [];
+  
+  // Fetch all countries on init
+  async function loadAllCountries() {
+    try {
+      const res = await fetch('https://countries.dev/countries');
+      const data = await res.json();
+      allCountries = Array.isArray(data) ? data : [];
+    } catch (e) {
+      console.error('Failed to load countries for currency search');
+    }
+  }
+  loadAllCountries();
   
   let debounceTimer;
   input.addEventListener('input', () => {
     clearTimeout(debounceTimer);
-    debounceTimer = setTimeout(async () => {
+    debounceTimer = setTimeout(() => {
       const query = input.value.trim();
-      if (!query || query.length < 2) {
+      if (!query || query.length < 2 || allCountries.length === 0) {
         suggestions.classList.remove('show');
         return;
       }
       
-      try {
-        // Use countries.dev API
-        const res = await fetch(`https://countries.dev/api/countries?search=${encodeURIComponent(query)}`);
-        const data = await res.json();
-        
-        if (data && data.length > 0) {
-          suggestions.innerHTML = data.slice(0, 8).map(country => {
-            const name = country.name;
-            const currency = country.currency_code || '';
-            
-            const highlighted = name.replace(new RegExp(query, 'i'), `<strong>${query}</strong>`);
-            return `<div class="autocomplete-item" data-currency="${currency}" data-name="${name}">${highlighted}${currency ? ` (${currency})` : ''}</div>`;
-          }).join('');
-          
-          suggestions.classList.add('show');
-          
-          suggestions.querySelectorAll('.autocomplete-item').forEach(item => {
-            item.addEventListener('click', () => {
-              const currency = item.dataset.currency;
-              const name = item.dataset.name;
-              
-              // Set the "from" currency to the selected country's currency
-              fromSelect.value = currency;
-              
-              // Clear the input
-              input.value = name;
-              
-              // Hide suggestions
-              suggestions.classList.remove('show');
-              
-              // Trigger conversion
-              const amount = document.getElementById('currencyAmount');
-              if (amount) {
-                amount.dispatchEvent(new Event('input'));
-              }
-            });
-          });
-        } else {
-          suggestions.classList.remove('show');
-        }
-      } catch (e) {
+      const q = query.toLowerCase();
+      
+      // Filter countries by name
+      const matches = allCountries
+        .filter(c => (c.name || '').toLowerCase().includes(q))
+        .slice(0, 8);
+      
+      if (matches.length === 0) {
         suggestions.classList.remove('show');
+        return;
       }
-    }, 300);
+      
+      suggestions.innerHTML = matches.map(country => {
+        const name = country.name;
+        // Extract currency code from currencies array
+        let currencyCode = '';
+        if (country.currencies && Array.isArray(country.currencies) && country.currencies.length > 0) {
+          currencyCode = country.currencies[0].code || '';
+        }
+        
+        const highlighted = name.replace(new RegExp(query, 'i'), `<strong>${query}</strong>`);
+        return `<div class="autocomplete-item" data-currency="${currencyCode}" data-name="${name}">${highlighted}${currencyCode ? ` (${currencyCode})` : ''}</div>`;
+      }).join('');
+      
+      suggestions.classList.add('show');
+      
+      suggestions.querySelectorAll('.autocomplete-item').forEach(item => {
+        item.addEventListener('click', () => {
+          const currency = item.dataset.currency;
+          const name = item.dataset.name;
+          
+          // Set the "from" currency to the selected country's currency
+          if (currency) {
+            fromSelect.value = currency;
+          }
+          
+          // Clear the input
+          input.value = name;
+          
+          // Hide suggestions
+          suggestions.classList.remove('show');
+          
+          // Trigger conversion
+          const amount = document.getElementById('currencyAmount');
+          if (amount) {
+            amount.dispatchEvent(new Event('input'));
+          }
+        });
+      });
+    }, 150);
   });
   
   // Hide suggestions when clicking outside
