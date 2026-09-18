@@ -233,6 +233,9 @@ import jikanjs from './lib/jikan.js';
 
   // --- Search ---
   async function searchContent(query, page) {
+    // Remember for the Refresh button.
+    lastAction = () => searchContent(query, page);
+
     showLoading();
     currentPage = page || 1;
     lastQuery = query;
@@ -249,8 +252,8 @@ import jikanjs from './lib/jikan.js';
         showStatus('No results found for "' + query + '"');
       }
     } catch (e) {
-      clearStatus();
-      showStatus('Error searching. Please try again.');
+      showError('Search failed. The Jikan API may be temporarily unavailable.');
+      console.error(e);
     }
   }
 
@@ -371,9 +374,6 @@ import jikanjs from './lib/jikan.js';
 
       input.value = '';
       lastQuery = '';
-      selectedGenre = '';
-      filterBtns.forEach(b => b.classList.remove('active'));
-      filterBtns[0].classList.add('active');
 
       loadCurrentTab(1);
     });
@@ -387,24 +387,11 @@ import jikanjs from './lib/jikan.js';
     });
   }
 
-  // --- Genre Filter Buttons ---
-  filterBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      filterBtns.forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      selectedGenre = btn.dataset.genre;
-      input.value = '';
-      lastQuery = '';
-      loadCurrentTab(1);
-    });
-  });
-
   // --- Search Button ---
   if (searchBtn) {
     searchBtn.addEventListener('click', () => {
       const q = input.value.trim();
       if (q) {
-        filterBtns.forEach(b => b.classList.remove('active'));
         lastQuery = '';
         searchContent(q);
       }
@@ -417,7 +404,6 @@ import jikanjs from './lib/jikan.js';
       if (e.key === 'Enter') {
         const q = input.value.trim();
         if (q) {
-          filterBtns.forEach(b => b.classList.remove('active'));
           lastQuery = '';
           searchContent(q);
         }
