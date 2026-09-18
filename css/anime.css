@@ -708,6 +708,15 @@
   .anime-main-layout {
     padding: 20px 16px 60px;
   }
+  .anime-hero {
+    padding: 60px 16px 40px;
+  }
+  .anime-hero-title {
+    font-size: clamp(24px, 6vw, 36px);
+  }
+  .anime-hero-subtitle {
+    font-size: 14px;
+  }
   .anime-grid {
     grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
     gap: 12px;
@@ -716,6 +725,26 @@
     padding: 14px 16px;
     font-size: 13px;
   }
+  .anime-search-bar {
+    flex-wrap: wrap;
+  }
+  .anime-search-btn {
+    width: 100%;
+    text-align: center;
+  }
+  .anime-section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  /* Modal responsive */
+  .anime-modal { padding: 10px; }
+  .anime-modal-content { max-height: 90vh; border-radius: var(--radius); }
+  .anime-modal-body { padding: 16px; }
+  .anime-modal-body h2 { font-size: 20px; }
+  .anime-modal-body h3 { font-size: 16px; margin: 16px 0 8px; }
+  .anime-modal-meta { gap: 8px; }
+  .anime-modal-meta span { font-size: 11px; padding: 3px 8px; }
 }
 
 @media (max-width: 480px) {
@@ -737,4 +766,21 @@
     font-size: 9px;
     padding: 3px 6px;
   }
+  .anime-tabs-inner {
+    padding: 0 12px;
+  }
+  .anime-tab {
+    padding: 12px 12px;
+    font-size: 12px;
+    gap: 6px;
+  }
+  .anime-tab svg {
+    width: 14px;
+    height: 14px;
+  }
+  .anime-modal { padding: 8px; }
+  .anime-modal-content { max-height: 95vh; }
+  .anime-modal-body { padding: 14px; }
+  .anime-modal-body h2 { font-size: 18px; }
+  .anime-modal-body p { font-size: 13px; }
 }

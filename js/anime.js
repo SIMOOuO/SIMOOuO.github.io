@@ -119,7 +119,11 @@ import jikanjs from './lib/jikan.js';
             '</div></div></div>';
         }).join('');
         top10List.querySelectorAll('.top10-item').forEach(el => {
-          el.addEventListener('click', () => showAnimeDetail(el.dataset.id));
+          el.addEventListener('click', () => {
+            const img = el.querySelector('.top10-img');
+            const titleEl = el.querySelector('.top10-title');
+            showAnimeDetail(el.dataset.id, img ? img.src : '', titleEl ? titleEl.textContent : '');
+          });
         });
       }
     } catch (e) { console.error('Top 10 load failed', e); }
@@ -184,7 +188,13 @@ import jikanjs from './lib/jikan.js';
     }).join('');
 
     grid.querySelectorAll('.anime-card').forEach(card => {
-      card.addEventListener('click', () => showAnimeDetail(card.dataset.id));
+      card.addEventListener('click', () => {
+        const imgEl = card.querySelector('.anime-card-img-wrap img');
+        const titleEl = card.querySelector('.anime-card-title');
+        const imgUrl = imgEl ? imgEl.src : '';
+        const title = titleEl ? titleEl.textContent : 'Unknown';
+        showAnimeDetail(card.dataset.id, imgUrl, title);
+      });
     });
   }
 
@@ -258,7 +268,7 @@ import jikanjs from './lib/jikan.js';
   }
 
   // --- Anime Detail Modal ---
-  async function showAnimeDetail(id) {
+  async function showAnimeDetail(id, fallbackImg, fallbackTitle) {
     try {
       modalContent.innerHTML = '<button class="recipe-modal-close" id="animeModalClose">&times;</button><div style="padding:60px;text-align:center;"><div class="recipe-loading-spinner"></div></div>';
       modal.classList.add('open');
@@ -311,6 +321,17 @@ import jikanjs from './lib/jikan.js';
       });
     } catch (e) {
       console.error('Failed to load anime detail', e);
+      // Show fallback: picture and name from the card
+      const imgSrc = fallbackImg || '';
+      const title = fallbackTitle || 'Unknown Anime';
+      modalContent.innerHTML = '<button class="recipe-modal-close" id="animeModalClose">&times;</button>' +
+        (imgSrc ? '<img class="anime-modal-img" src="' + imgSrc + '" alt="' + title + '">' : '') +
+        '<div class="anime-modal-body">' +
+        '<h2>' + title + '</h2>' +
+        '<p style="color:var(--accent);margin-top:12px;">Failed to load full details. The API may be temporarily unavailable.</p>' +
+        '<p style="margin-top:16px;"><a href="https://myanimelist.net/anime/' + id + '" target="_blank" style="color:var(--accent);">View on MyAnimeList →</a></p>' +
+        '</div>';
+      document.getElementById('animeModalClose').addEventListener('click', () => modal.classList.remove('open'));
     }
   }
 

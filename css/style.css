@@ -1337,12 +1337,7 @@ button { cursor: pointer; font-family: inherit; }
   text-decoration: underline;
   text-underline-offset: 3px;
 }
-  font-size: 14px;
-  text-decoration: none;
-  transition: background 0.2s;
-}
 
-.error-btn:hover { background: var(--accent-hover); color: #fff; }
 /* --- Disclaimer Modal --- */
 .modal-overlay {
   position: fixed;
@@ -1471,23 +1466,71 @@ button { cursor: pointer; font-family: inherit; }
   .weather-widget { min-width: auto; width: 100%; }
   .hero-stats { gap: 24px; }
   .hero-stat-num { font-size: 22px; }
-  .tools-grid { grid-template-columns: 1fr; }
+
+  /* Tool cards: 2 columns on tablet, 1 on phone */
+  .tools-grid { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
+  .tool-card { padding: 16px; }
+  .tool-card-title { font-size: 15px; }
+  .tool-card-desc { font-size: 12px; }
+
   .game-grid { grid-template-columns: 1fr; }
+
+  /* Recipe responsive */
   .recipe-search-bar { flex-direction: column; }
+  .recipe-btn { width: 100%; text-align: center; }
+  .recipe-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
+  .recipe-card-title { font-size: 13px; }
   .recipe-modal-body ul { grid-template-columns: 1fr; }
+  .recipe-modal-content { max-height: 90vh; }
+  .recipe-modal-body { padding: 16px; }
+  .recipe-modal-body h2 { font-size: 20px; }
+  .recipe-categories { gap: 6px; }
+  .recipe-cat-btn { padding: 5px 10px; font-size: 11px; }
+  .meal-categories { gap: 6px; }
+  .meal-cat-btn { padding: 6px 12px; font-size: 12px; }
+
   .about-card { padding: 24px; }
   .about-avatar-wrap { flex-direction: column; text-align: center; }
   .about-links { flex-direction: column; }
-  
-  
+
   .weather-search-row { flex-direction: row; }
   .weather-widget { min-width: auto; }
+
+  .page-header { padding-bottom: 20px; }
+  .page-header h1 { font-size: clamp(24px, 6vw, 36px); }
+  .page-header p { font-size: 14px; }
 }
 
 @media (max-width: 480px) {
   .hero h1 { font-size: 28px; }
   .hero-desc { font-size: 15px; }
   .hero-stats { flex-wrap: wrap; gap: 16px; }
+
+  /* Tool cards: single column on small phones */
+  .tools-grid { grid-template-columns: 1fr; gap: 10px; }
+  .tool-card { padding: 14px; gap: 8px; }
+  .tool-card-header { flex-direction: column; gap: 6px; }
+
+  /* Recipe grid: 2 columns on small phones */
+  .recipe-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .recipe-card-body { padding: 10px 12px; }
+  .recipe-card-title { font-size: 12px; }
+  .recipe-card-area { font-size: 11px; }
+
+  .recipe-modal { padding: 10px; }
+  .recipe-modal-content { max-height: 95vh; border-radius: var(--radius); }
+  .recipe-modal-body { padding: 14px; }
+  .recipe-modal-body h2 { font-size: 18px; }
+  .recipe-modal-body h3 { font-size: 16px; margin: 16px 0 8px; }
+  .recipe-modal-meta { flex-wrap: wrap; gap: 8px; }
+  .recipe-modal-meta span { font-size: 11px; padding: 3px 8px; }
+
+  .data-area-filter { padding: 12px 14px; }
+  .data-area-filter-options { gap: 4px; }
+  .data-area-filter-chip { padding: 4px 10px; font-size: 11px; }
+
+  .meal-categories-section { padding: 14px; }
+  .meal-categories-title { font-size: 13px; }
 }
 
 /* --- Utility --- */

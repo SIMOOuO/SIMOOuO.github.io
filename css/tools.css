@@ -445,12 +445,44 @@
 
 /* --- Tools Mobile Responsive --- */
 @media (max-width: 768px) {
+  .api-tools-section { padding: 0 16px 60px; gap: 16px; }
+  .api-tool-card { border-radius: var(--radius); }
+  .api-tool-header { padding: 16px 18px; flex-wrap: wrap; gap: 10px; }
+  .api-tool-header h2 { font-size: 17px; }
+  .api-tool-body { padding: 16px; }
   .api-search-row { flex-direction: column; }
+  .api-btn { width: 100%; text-align: center; }
   .currency-row { flex-direction: column; }
   .currency-arrow { 
     padding-top: 0;
     transform: rotate(90deg);
+    align-self: center;
   }
   .book-card { flex-direction: column; align-items: center; text-align: center; }
+  .book-cover { width: 100px; height: 140px; }
+  .book-title { font-size: 17px; }
+  .book-links { flex-direction: column; width: 100%; }
+  .book-link { text-align: center; }
   .pokemon-card { flex-direction: column; align-items: center; text-align: center; }
+  .pokemon-image { width: 100px; height: 100px; }
+  .pokemon-name { font-size: 20px; }
+  .pokemon-types { justify-content: center; }
+  .country-card { text-align: center; }
+  .country-flag { margin: 0 auto 16px; }
+  .country-info { grid-template-columns: 1fr; }
+  .card-move-controls { opacity: 1; pointer-events: auto; }
+}
+
+@media (max-width: 480px) {
+  .api-tools-section { padding: 0 12px 40px; }
+  .api-tool-header { padding: 14px 14px; }
+  .api-tool-header h2 { font-size: 16px; }
+  .api-badge { font-size: 10px; padding: 3px 8px; }
+  .api-tool-body { padding: 14px; }
+  .api-input { padding: 10px 14px; font-size: 14px; }
+  .api-btn { padding: 10px 20px; font-size: 14px; }
+  .api-select { padding: 10px 14px; font-size: 14px; }
+  .book-card { padding: 14px; gap: 14px; }
+  .pokemon-card { padding: 14px; gap: 14px; }
+  .country-card { padding: 14px; }
 }
