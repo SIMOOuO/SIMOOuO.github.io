@@ -6,7 +6,7 @@
 
 ## 在线演示
 
-托管在 GitHub Pages：[https://simooouo.github.io](https://simooouo.github.io)
+托管在 GitHub Pages：[https://simoouo.github.io](https://simoouo.github.io)
 
 ## 功能特性
 

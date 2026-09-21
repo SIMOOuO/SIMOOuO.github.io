@@ -6,7 +6,7 @@ A curated collection of useful websites, tools, and resources for learning, prod
 
 ## Live Demo
 
-Hosted on GitHub Pages: [https://simooouo.github.io](https://simooouo.github.io)
+Hosted on GitHub Pages: [https://simoouo.github.io](https://simoouo.github.io)
 
 ## Features
 
