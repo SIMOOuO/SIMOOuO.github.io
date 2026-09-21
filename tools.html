@@ -6,6 +6,7 @@
     <title>Tools — SIMO</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/tools.css">
+    <link rel="stylesheet" href="css/settings.css">
 </head>
 <body>
     <!-- Navigation -->
@@ -23,6 +24,9 @@
             <div class="nav-actions">
                 <button class="nav-btn" id="themeBtn" title="Toggle theme">
                     <svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                </button>
+                <button class="nav-btn nav-btn-settings" id="settingsBtn" title="Settings">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
                 </button>
                 <button class="nav-toggle" id="navToggle">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
@@ -244,8 +248,14 @@
             </div>
         </div>
         <div class="footer-bottom">
-            <span>Copyright © 2026 SIMOOuO</span>
-            <button class="footer-disclaimer-btn" id="openDisclaimer">Disclaimer | 免责声明</button>
+            <div class="footer-copyright">
+                <span>Copyright &copy; 2026 SIMOOuO. All rights reserved.</span>
+                <span class="footer-copyright-zh">版权所有 &copy; 2026 SIMOOuO 保留所有权利。</span>
+            </div>
+            <div class="footer-bottom-right">
+                <span class="footer-music-credit">BGM: <a href="https://space.bilibili.com/252024287" target="_blank" rel="noopener">Prod by 24T</a></span>
+                <button class="footer-disclaimer-btn" id="openDisclaimer">Disclaimer | 免责声明</button>
+            </div>
         </div>
     </footer>
 
@@ -271,5 +281,9 @@
 
     <script src="js/main.js"></script>
     <script src="js/tools.js"></script>
+    <script src="js/settings/SettingsStorage.js"></script>
+    <script src="js/settings/AudioManager.js"></script>
+    <script src="js/settings/SettingsPanel.js"></script>
+    <script src="js/settings/settings-init.js"></script>
 </body>
 </html>

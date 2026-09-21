@@ -122,27 +122,42 @@ const toolsData = [
     localStorage.setItem('theme', next);
   });
 })();
-// ---- Tool Cards Rendering ----
+// ---- Tool Cards Rendering with Pagination ----
 (function initTools() {
   const grid = document.getElementById('toolsGrid');
   const filterBar = document.getElementById('filterBar');
   const filterCount = document.getElementById('filterCount');
   const totalCount = document.getElementById('totalCount');
+  const pagination = document.getElementById('pagination');
   if (!grid) return;
+
+  const ITEMS_PER_PAGE = 12;
+  let currentPage = 1;
+  let currentCategory = 'all';
+  let filteredData = [];
 
   const arrowSVG = '<svg class="tool-card-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>';
 
-  function renderCards(category) {
-    const filtered = category === 'all' ? toolsData : toolsData.filter(t => t.category.toLowerCase() === category.toLowerCase());
+  function renderCards(category, page = 1) {
+    currentCategory = category;
+    currentPage = page;
+    filteredData = category === 'all' ? toolsData : toolsData.filter(t => t.category.toLowerCase() === category.toLowerCase());
+    
+    const totalPages = Math.ceil(filteredData.length / ITEMS_PER_PAGE);
+    const startIndex = (page - 1) * ITEMS_PER_PAGE;
+    const endIndex = startIndex + ITEMS_PER_PAGE;
+    const pageItems = filteredData.slice(startIndex, endIndex);
+
     grid.innerHTML = '';
 
-    if (filtered.length === 0) {
+    if (filteredData.length === 0) {
       grid.innerHTML = '<div class="no-results"><div class="no-results-icon">¯\\_(ツ)_/¯</div><h3>No tools found</h3><p>Try a different category</p></div>';
       if (filterCount) filterCount.textContent = '0 results';
+      if (pagination) pagination.innerHTML = '';
       return;
     }
 
-    filtered.forEach((tool, i) => {
+    pageItems.forEach((tool, i) => {
       const card = document.createElement('a');
       card.href = tool.url;
       card.target = '_blank';
@@ -161,7 +176,54 @@ const toolsData = [
       grid.appendChild(card);
     });
 
-    if (filterCount) filterCount.textContent = filtered.length + ' result' + (filtered.length !== 1 ? 's' : '');
+    if (filterCount) filterCount.textContent = filteredData.length + ' result' + (filteredData.length !== 1 ? 's' : '');
+    
+    renderPagination(totalPages);
+  }
+
+  function renderPagination(totalPages) {
+    if (!pagination) return;
+    if (totalPages <= 1) {
+      pagination.innerHTML = '';
+      return;
+    }
+
+    let html = '';
+    
+    // Previous button
+    if (currentPage > 1) {
+      html += `<button class="pagination-btn" data-page="${currentPage - 1}">← Prev</button>`;
+    } else {
+      html += `<button class="pagination-btn" disabled>← Prev</button>`;
+    }
+
+    // Page numbers
+    for (let i = 1; i <= totalPages; i++) {
+      if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
+        html += `<button class="pagination-btn ${i === currentPage ? 'active' : ''}" data-page="${i}">${i}</button>`;
+      } else if (i === currentPage - 2 || i === currentPage + 2) {
+        html += `<span class="pagination-ellipsis">...</span>`;
+      }
+    }
+
+    // Next button
+    if (currentPage < totalPages) {
+      html += `<button class="pagination-btn" data-page="${currentPage + 1}">Next →</button>`;
+    } else {
+      html += `<button class="pagination-btn" disabled>Next →</button>`;
+    }
+
+    pagination.innerHTML = html;
+
+    // Bind click events
+    pagination.querySelectorAll('.pagination-btn:not([disabled])').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const page = parseInt(btn.dataset.page);
+        renderCards(currentCategory, page);
+        // Scroll to top of grid
+        grid.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    });
   }
 
   // Filter buttons
@@ -170,13 +232,13 @@ const toolsData = [
       btn.addEventListener('click', () => {
         filterBar.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-        renderCards(btn.dataset.category);
+        renderCards(btn.dataset.category, 1); // Reset to page 1 on filter change
       });
     });
   }
 
   // Initial render
-  renderCards('all');
+  renderCards('all', 1);
   if (totalCount) totalCount.textContent = toolsData.length;
 })();
 // ---- Search Overlay ----
