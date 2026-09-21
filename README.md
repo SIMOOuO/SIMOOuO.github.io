@@ -4,11 +4,9 @@
 
 A curated collection of useful websites, tools, and resources for learning, productivity, and fun — built with pure HTML, CSS, and JavaScript.
 
-![SIMO Preview](image/home.png)
-
 ## Live Demo
 
-Hosted on GitHub Pages: [https://simooouo.github.io/web_simo/](https://simooouo.github.io/web_simo/)
+Hosted on GitHub Pages: [https://simooouo.github.io](https://simooouo.github.io)
 
 ## Features
 
@@ -88,7 +86,7 @@ web_simo-3.0/
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/SIMOOuO/web_simo.git
+   git clone https://github.com/SIMOOuO/SIMOOuO.github.io.git
    cd web_simo
    ```
 
@@ -99,7 +97,7 @@ web_simo-3.0/
 1. Push to your GitHub repository
 2. Go to **Settings > Pages**
 3. Select the branch and root directory
-4. Your site will be live at `https://<username>.github.io/web_simo/`
+4. Your site will be live at `https://<username>.github.io`
 
 ## APIs Used
 

@@ -4,11 +4,9 @@
 
 一个精选的有用网站、工具和资源合集，涵盖学习、生产力和娱乐——使用纯 HTML、CSS 和 JavaScript 构建。
 
-![SIMO 预览](image/home.png)
-
 ## 在线演示
 
-托管在 GitHub Pages：[https://simooouo.github.io/web_simo/](https://simooouo.github.io/web_simo/)
+托管在 GitHub Pages：[https://simooouo.github.io](https://simooouo.github.io)
 
 ## 功能特性
 
@@ -88,7 +86,7 @@ web_simo-3.0/
 
 1. 克隆仓库：
    ```bash
-   git clone https://github.com/SIMOOuO/web_simo.git
+   git clone https://github.com/SIMOOuO/SIMOOuO.github.io.git
    cd web_simo
    ```
 
@@ -99,7 +97,7 @@ web_simo-3.0/
 1. 推送到你的 GitHub 仓库
 2. 进入 **Settings > Pages**
 3. 选择分支和根目录
-4. 你的网站将在 `https://<username>.github.io/web_simo/` 上线
+4. 你的网站将在 `https://<username>.github.io` 上线
 
 ## 使用的 API
 
