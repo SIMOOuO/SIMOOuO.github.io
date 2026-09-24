@@ -379,8 +379,6 @@
 .anime-sidebar-right {
   width: 300px;
   flex-shrink: 0;
-  position: sticky;
-  top: calc(var(--nav-height) + 70px);
 }
 
 .sidebar-top10-box {

@@ -87,7 +87,7 @@ web_simo-3.0/
 1. Clone the repository:
    ```bash
    git clone https://github.com/SIMOOuO/SIMOOuO.github.io.git
-   cd web_simo
+   cd SIMOOuO.github.io
    ```
 
 2. Open `index.html` in your browser — no build step required.
@@ -95,8 +95,14 @@ web_simo-3.0/
 ### Deploy to GitHub Pages
 
 1. Push to your GitHub repository
+   git add . 
+   git commit -m "Update website" 
+   git push
 2. Go to **Settings > Pages**
 3. Select the branch and root directory
+   Source: Deploy from a branch
+   Branch: main
+   Folder: / (root)
 4. Your site will be live at `https://<username>.github.io`
 
 ## APIs Used

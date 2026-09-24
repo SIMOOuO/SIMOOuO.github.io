@@ -87,7 +87,7 @@ web_simo-3.0/
 1. 克隆仓库：
    ```bash
    git clone https://github.com/SIMOOuO/SIMOOuO.github.io.git
-   cd web_simo
+   cd SIMOOuO.github.io
    ```
 
 2. 在浏览器中打开 `index.html` — 无需构建步骤。
@@ -95,8 +95,14 @@ web_simo-3.0/
 ### 部署到 GitHub Pages
 
 1. 推送到你的 GitHub 仓库
+   git add . 
+   git commit -m "Update website" 
+   git push
 2. 进入 **Settings > Pages**
 3. 选择分支和根目录
+   Source: Deploy from a branch
+   Branch: main
+   Folder: / (root)
 4. 你的网站将在 `https://<username>.github.io` 上线
 
 ## 使用的 API
