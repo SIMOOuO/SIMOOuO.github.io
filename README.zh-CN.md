@@ -60,7 +60,6 @@ web_simo-3.0/
 │   ├── main.js         # 核心逻辑（导航、主题、搜索、食谱、天气）
 │   ├── tools.js        # API 工具逻辑（图书、货币、宝可梦、国家）
 │   ├── anime.js        # 动漫页逻辑（AniList GraphQL）
-│   ├── SPA.js          # SPA 工具
 │   └── settings/
 │       ├── AudioManager.js    # 背景音乐播放与 UI 音效
 │       ├── SettingsPanel.js   # 设置界面

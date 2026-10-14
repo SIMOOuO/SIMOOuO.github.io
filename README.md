@@ -60,7 +60,6 @@ web_simo-3.0/
 │   ├── main.js         # Core logic (nav, theme, search, recipes, weather)
 │   ├── tools.js        # API tools logic (books, currency, Pokémon, countries)
 │   ├── anime.js        # Anime page logic (AniList GraphQL)
-│   ├── SPA.js          # SPA utilities
 │   └── settings/
 │       ├── AudioManager.js    # BGM playback & UI sounds
 │       ├── SettingsPanel.js   # Settings UI
