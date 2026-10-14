@@ -11,9 +11,9 @@ Hosted on GitHub Pages: [https://simoouo.github.io](https://simoouo.github.io)
 ## Features
 
 - **Home** — 60+ curated websites organized by category (Tool, Study, Game, Other) with search and pagination
-- **API Tools** — Book search (Open Library), currency converter, Pokémon lookup, country info
+- **API Tools** — Book search (Open Library), currency converter (ExchangeRate API), Pokémon lookup with stat bars (PokéAPI), country info with map links (countries.dev)
 - **Recipe Finder** — Search recipes by ingredient, cuisine, or meal type (powered by TheMealDB API)
-- **Anime** — Anime search and discovery (powered by Jikan API)
+- **Anime** — Anime search and discovery with seasonal charts, top rated, and detail modals (powered by AniList GraphQL API)
 - **Games** — Gaming highlights and embedded video clips
 - **Weather Widget** — Real-time weather with city search (powered by Open-Meteo API)
 - **Dark/Light Theme** — Toggle between themes with persistence
@@ -29,12 +29,13 @@ Hosted on GitHub Pages: [https://simoouo.github.io](https://simoouo.github.io)
 | HTML5 | Structure |
 | CSS3 | Styling with custom properties (CSS variables) |
 | Vanilla JavaScript | All interactivity — no frameworks |
+| AniList GraphQL API | Anime data (free, no key required) |
 | TheMealDB API | Recipe search |
 | Open-Meteo API | Weather & geocoding |
-| Jikan API | Anime data (unofficial MyAnimeList) |
 | Open Library API | Book search |
 | PokéAPI | Pokémon data |
-| REST Countries API | Country information |
+| ExchangeRate API (open.er-api.com) | Currency conversion |
+| countries.dev API | Country information |
 | GitHub Pages | Free hosting |
 
 ## Project Structure
@@ -44,7 +45,7 @@ web_simo-3.0/
 ├── index.html          # Home — curated tool list with pagination
 ├── tools.html          # API-powered tools (books, currency, Pokémon, countries)
 ├── food.html           # Recipe Finder
-├── anime.html          # Anime search
+├── anime.html          # Anime search & discovery (AniList)
 ├── game.html           # Game replays
 ├── about.html          # About page (bilingual)
 ├── 404.html            # Custom 404 page
@@ -56,15 +57,10 @@ web_simo-3.0/
 │   ├── anime.css       # Anime page styles
 │   └── settings.css    # Settings panel styles
 ├── js/
-│   ├── main.js         # Core logic (nav, theme, tools, search, recipes, weather)
-│   ├── tools.js        # API tools logic
-│   ├── anime.js        # Anime page logic
+│   ├── main.js         # Core logic (nav, theme, search, recipes, weather)
+│   ├── tools.js        # API tools logic (books, currency, Pokémon, countries)
+│   ├── anime.js        # Anime page logic (AniList GraphQL)
 │   ├── SPA.js          # SPA utilities
-│   ├── lib/
-│   │   ├── jikan.js    # Jikan API wrapper
-│   │   └── util/
-│   │       ├── Request.js
-│   │       └── Settings.js
 │   └── settings/
 │       ├── AudioManager.js    # BGM playback & UI sounds
 │       ├── SettingsPanel.js   # Settings UI
@@ -109,18 +105,19 @@ web_simo-3.0/
 
 | API | Endpoint | Usage |
 |---|---|---|
+| [AniList GraphQL](https://anilist.co/graphiql) | Free | Anime search, seasonal charts, detail data |
 | [TheMealDB](https://www.themealdb.com/) | Free | Recipe search by ingredient/cuisine |
 | [Open-Meteo](https://open-meteo.com/) | Free | Weather forecasts & geocoding |
-| [Jikan](https://jikan.moe/) | Free | Anime search & data |
 | [Open Library](https://openlibrary.org/) | Free | Book search |
-| [PokéAPI](https://pokeapi.co/) | Free | Pokémon data |
-| [REST Countries](https://restcountries.com/) | Free | Country information |
+| [PokéAPI](https://pokeapi.co/) | Free | Pokémon data with stats |
+| [ExchangeRate API](https://open.er-api.com/) | Free | Currency conversion rates |
+| [countries.dev](https://countries.dev/) | Free | Country information |
 
 ## Credits
 
 - **Background Music**: [Prod by 24T](https://space.bilibili.com/252024287) — All rights belong to the original creator. 编曲/后缀: Prod by 24T
 - **Fonts**: [Fraunces](https://fonts.google.com/specimen/Fraunces), [DM Sans](https://fonts.google.com/specimen/DM+Sans), [JetBrains Mono](https://fonts.google.com/specimen/JetBrains+Mono) via Google Fonts
-- **APIs**: TheMealDB, Open-Meteo, Jikan, Open Library, PokéAPI, REST Countries
+- **APIs**: AniList GraphQL, TheMealDB, Open-Meteo, Open Library, PokéAPI, ExchangeRate API, countries.dev
 
 ## License
 

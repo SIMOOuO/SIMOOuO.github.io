@@ -35,13 +35,13 @@
     <!-- Header -->
     <section class="page-header">
         <h1>API Tools</h1>
-        <p>Four handy tools powered by free APIs.</p>
+        <p>Handy utilities powered by free, open APIs. Search books, convert currencies, look up Pok&eacute;mon, and explore countries.</p>
     </section>
 
     <!-- Tools Container -->
     <section class="api-tools-section" id="toolsSection">
         <!-- Book Search -->
-        <div class="api-tool-card" data-tool="book">
+        <div class="api-tool-card" data-tool="book" style="--card-accent: #6366f1; --icon-bg: rgba(99,102,241,0.12); --icon-color: #6366f1; --badge-bg: #6366f1;">
             <div class="card-move-controls">
                 <button class="card-move-up" title="Move up">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="18 15 12 9 6 15"></polyline></svg>
@@ -51,16 +51,24 @@
                 </button>
             </div>
             <div class="api-tool-header">
-                <h2>Open Library</h2>
+                <div class="api-tool-header-left">
+                    <div class="api-tool-icon">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                    </div>
+                    <div>
+                        <h2>Open Library</h2>
+                        <div class="api-tool-header-sub">Search millions of books</div>
+                    </div>
+                </div>
                 <div style="display: flex; gap: 8px; align-items: center;">
-                    <button id="bookRandomBtn" class="api-btn" style="padding: 6px 12px; font-size: 12px;">🎲 Random</button>
+                    <button id="bookRandomBtn" class="api-btn-random">Random</button>
                     <span class="api-badge">Book Search</span>
                 </div>
             </div>
             <div class="api-tool-body">
                 <div class="api-search-row">
                     <div class="autocomplete-wrapper">
-                        <input type="text" id="bookInput" class="api-input" placeholder="Search for a book..." autocomplete="off">
+                        <input type="text" id="bookInput" class="api-input" placeholder="Search by title, author, or ISBN..." autocomplete="off">
                         <div id="bookSuggestions" class="autocomplete-suggestions"></div>
                     </div>
                     <button id="bookBtn" class="api-btn">Search</button>
@@ -70,7 +78,7 @@
         </div>
 
         <!-- Currency Converter -->
-        <div class="api-tool-card" data-tool="currency">
+        <div class="api-tool-card" data-tool="currency" style="--card-accent: #10b981; --icon-bg: rgba(16,185,129,0.12); --icon-color: #10b981; --badge-bg: #10b981;">
             <div class="card-move-controls">
                 <button class="card-move-up" title="Move up">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="18 15 12 9 6 15"></polyline></svg>
@@ -80,7 +88,15 @@
                 </button>
             </div>
             <div class="api-tool-header">
-                <h2>Exchange Rate</h2>
+                <div class="api-tool-header-left">
+                    <div class="api-tool-icon">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                    </div>
+                    <div>
+                        <h2>Exchange Rate</h2>
+                        <div class="api-tool-header-sub">Real-time currency conversion</div>
+                    </div>
+                </div>
                 <span class="api-badge">Currency Converter</span>
             </div>
             <div class="api-tool-body">
@@ -92,6 +108,7 @@
                 </div>
                 <div class="currency-row">
                     <div class="currency-input-group">
+                        <span class="currency-group-label">From</span>
                         <input type="number" id="currencyAmount" class="api-input" value="100" min="0">
                         <select id="currencyFrom" class="api-select">
                             <option value="USD">USD - US Dollar</option>
@@ -128,8 +145,9 @@
                             <option value="ILS">ILS - Israeli Shekel</option>
                         </select>
                     </div>
-                    <span class="currency-arrow">→</span>
+                    <span class="currency-arrow">&rarr;</span>
                     <div class="currency-input-group">
+                        <span class="currency-group-label">To</span>
                         <div id="currencyResult" class="currency-result">--</div>
                         <select id="currencyTo" class="api-select">
                             <option value="EUR">EUR - Euro</option>
@@ -167,11 +185,12 @@
                         </select>
                     </div>
                 </div>
+                <div id="currencyRateInfo" class="currency-rate-info" style="display:none;"></div>
             </div>
         </div>
 
         <!-- Pokemon Lookup -->
-        <div class="api-tool-card" data-tool="pokemon">
+        <div class="api-tool-card" data-tool="pokemon" style="--card-accent: #f59e0b; --icon-bg: rgba(245,158,11,0.12); --icon-color: #f59e0b; --badge-bg: #f59e0b;">
             <div class="card-move-controls">
                 <button class="card-move-up" title="Move up">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="18 15 12 9 6 15"></polyline></svg>
@@ -181,10 +200,18 @@
                 </button>
             </div>
             <div class="api-tool-header">
-                <h2>PokéAPI</h2>
+                <div class="api-tool-header-left">
+                    <div class="api-tool-icon">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><line x1="2" y1="12" x2="8" y2="12"/><line x1="16" y1="12" x2="22" y2="12"/></svg>
+                    </div>
+                    <div>
+                        <h2>Pok&eacute;API</h2>
+                        <div class="api-tool-header-sub">Look up any Pok&eacute;mon with stats</div>
+                    </div>
+                </div>
                 <div style="display: flex; gap: 8px; align-items: center;">
-                    <button id="pokemonRandomBtn" class="api-btn" style="padding: 6px 12px; font-size: 12px;">🎲 Random</button>
-                    <span class="api-badge">Pokémon Lookup</span>
+                    <button id="pokemonRandomBtn" class="api-btn-random">Random</button>
+                    <span class="api-badge">Pok&eacute;mon Lookup</span>
                 </div>
             </div>
             <div class="api-tool-body">
@@ -200,7 +227,7 @@
         </div>
 
         <!-- Country Lookup -->
-        <div class="api-tool-card" data-tool="country">
+        <div class="api-tool-card" data-tool="country" style="--card-accent: #8b5cf6; --icon-bg: rgba(139,92,246,0.12); --icon-color: #8b5cf6; --badge-bg: #8b5cf6;">
             <div class="card-move-controls">
                 <button class="card-move-up" title="Move up">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="18 15 12 9 6 15"></polyline></svg>
@@ -210,9 +237,17 @@
                 </button>
             </div>
             <div class="api-tool-header">
-                <h2>Country API</h2>
+                <div class="api-tool-header-left">
+                    <div class="api-tool-icon">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                    </div>
+                    <div>
+                        <h2>Country API</h2>
+                        <div class="api-tool-header-sub">Explore countries around the world</div>
+                    </div>
+                </div>
                 <div style="display: flex; gap: 8px; align-items: center;">
-                    <button id="countryRandomBtn" class="api-btn" style="padding: 6px 12px; font-size: 12px;">🎲 Random</button>
+                    <button id="countryRandomBtn" class="api-btn-random">Random</button>
                     <span class="api-badge">Country Info</span>
                 </div>
             </div>

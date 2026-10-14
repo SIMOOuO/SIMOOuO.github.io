@@ -1,5 +1,5 @@
 /* ============================================
-   TOOLS PAGE — All Styles
+   TOOLS PAGE — Redesigned Styles
    ============================================ */
 
 /* --- API Tools Section --- */
@@ -9,30 +9,48 @@
   padding: 0 24px 80px;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 28px;
 }
 
+/* --- Tool Card --- */
 .api-tool-card {
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   overflow: visible;
   position: relative;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
-/* Card controls (hover gradient) */
-.api-tool-card {
-  position: relative;
-  transition: transform 0.2s;
+.api-tool-card:hover {
+  box-shadow: var(--shadow-md);
 }
 
+/* Card icon strip (left accent) */
+.api-tool-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  border-radius: var(--radius-lg) 0 0 var(--radius-lg);
+  background: var(--card-accent, var(--accent));
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.api-tool-card:hover::before {
+  opacity: 1;
+}
+
+/* Card controls */
 .card-move-controls {
   position: absolute;
-  top: 8px;
-  right: 8px;
+  top: 10px;
+  right: 10px;
   display: flex;
-  gap: 6px;
+  gap: 4px;
   align-items: center;
   opacity: 0;
   transition: opacity 0.3s;
@@ -47,62 +65,109 @@
 
 .card-move-up,
 .card-move-down {
-  width: 32px;
-  height: 32px;
-  border: none;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.2);
-  color: #fff;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg-card);
+  color: var(--text-muted);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.2s;
-  backdrop-filter: blur(8px);
 }
 
 .card-move-up:hover:not(:disabled),
 .card-move-down:hover:not(:disabled) {
-  background: rgba(255,255,255,0.3);
-  transform: scale(1.1);
-}
-
-.card-move-up:active:not(:disabled),
-.card-move-down:active:not(:disabled) {
-  transform: scale(0.95);
+  background: var(--bg-elevated);
+  color: var(--accent);
+  border-color: var(--accent);
 }
 
 .card-move-up:disabled,
 .card-move-down:disabled {
-  opacity: 0.3;
+  opacity: 0.25;
   cursor: not-allowed;
 }
 
+/* --- Card Header --- */
 .api-tool-header {
   padding: 20px 24px;
   border-bottom: 1px solid var(--border);
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
+}
+
+.api-tool-header-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.api-tool-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+  background: var(--icon-bg, var(--bg-elevated));
+  color: var(--icon-color, var(--accent));
 }
 
 .api-tool-header h2 {
   font-family: var(--font-display);
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 600;
+  line-height: 1.2;
+}
+
+.api-tool-header-sub {
+  font-size: 12px;
+  color: var(--text-faint);
+  margin-top: 2px;
 }
 
 .api-badge {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 10px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   padding: 4px 10px;
-  border-radius: 4px;
-  background: var(--accent);
+  border-radius: 6px;
+  background: var(--badge-bg, var(--accent));
   color: #fff;
+  white-space: nowrap;
 }
 
+.api-btn-random {
+  padding: 6px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-elevated);
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.api-btn-random:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--bg-card);
+}
+
+/* --- Card Body --- */
 .api-tool-body {
   padding: 24px;
 }
@@ -120,14 +185,15 @@
   border-radius: var(--radius);
   background: var(--bg);
   color: var(--text);
-  font-size: 15px;
+  font-size: 14px;
   font-family: var(--font-body);
   outline: none;
-  transition: border-color 0.2s;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .api-input:focus {
   border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(196, 86, 58, 0.1);
 }
 
 .api-btn {
@@ -136,14 +202,18 @@
   border-radius: var(--radius);
   background: var(--accent);
   color: #fff;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 600;
-  transition: background 0.2s;
+  transition: background 0.2s, transform 0.1s;
   white-space: nowrap;
 }
 
 .api-btn:hover {
   background: var(--accent-hover);
+}
+
+.api-btn:active {
+  transform: scale(0.98);
 }
 
 /* --- Autocomplete --- */
@@ -162,7 +232,7 @@
   border: 1px solid var(--border);
   border-radius: var(--radius);
   margin-top: 4px;
-  max-height: 200px;
+  max-height: 220px;
   overflow-y: auto;
   display: none;
   z-index: 10000;
@@ -176,10 +246,9 @@
 .autocomplete-item {
   padding: 10px 14px;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 13px;
   color: var(--text);
-  transition: background 0.15s;
-  text-transform: capitalize;
+  transition: background 0.12s;
 }
 
 .autocomplete-item:hover {
@@ -198,7 +267,11 @@
   display: none;
 }
 
-/* --- Currency Converter (Exchange Rate API) --- */
+/* --- Currency Converter --- */
+.currency-search-row {
+  margin-bottom: 16px;
+}
+
 .currency-row {
   display: flex;
   align-items: center;
@@ -212,13 +285,21 @@
   gap: 8px;
 }
 
+.currency-group-label {
+  font-size: 11px;
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-faint);
+}
+
 .api-select {
   padding: 12px 16px;
   border: 1px solid var(--border);
   border-radius: var(--radius);
   background: var(--bg);
   color: var(--text);
-  font-size: 15px;
+  font-size: 14px;
   font-family: var(--font-body);
   outline: none;
   cursor: pointer;
@@ -230,36 +311,56 @@
 }
 
 .currency-arrow {
-  font-size: 24px;
+  font-size: 20px;
   color: var(--text-faint);
   padding-top: 20px;
 }
 
 .currency-result {
-  padding: 12px 16px;
+  padding: 14px 16px;
   background: var(--bg-elevated);
   border-radius: var(--radius);
-  font-size: 18px;
-  font-weight: 600;
+  font-size: 20px;
+  font-weight: 700;
   color: var(--text);
   font-family: var(--font-display);
+  border: 1px solid var(--border-light);
 }
 
-/* --- Book Result (Open Library API) --- */
+.currency-rate-info {
+  margin-top: 12px;
+  padding: 10px 14px;
+  background: var(--bg);
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.currency-rate-info .rate-value {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  color: var(--text);
+}
+
+/* --- Book Result --- */
 .book-card {
   display: flex;
-  gap: 20px;
-  padding: 20px;
+  gap: 24px;
+  padding: 24px;
   background: var(--bg);
   border-radius: var(--radius);
+  border: 1px solid var(--border-light);
 }
 
 .book-cover {
-  width: 120px;
-  height: 170px;
+  width: 130px;
+  height: 185px;
   object-fit: cover;
-  border-radius: 6px;
-  box-shadow: var(--shadow-sm);
+  border-radius: 8px;
+  box-shadow: var(--shadow-md);
   flex-shrink: 0;
 }
 
@@ -267,7 +368,7 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 }
 
 .book-title {
@@ -279,7 +380,7 @@
 }
 
 .book-author {
-  font-size: 15px;
+  font-size: 14px;
   color: var(--accent);
   font-weight: 500;
 }
@@ -287,15 +388,18 @@
 .book-meta {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
-  font-size: 13px;
-  color: var(--text-muted);
+  gap: 8px;
 }
 
 .book-meta-item {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 4px;
+  padding: 4px 10px;
+  background: var(--bg-elevated);
+  border-radius: 6px;
+  font-size: 12px;
+  color: var(--text-muted);
 }
 
 .book-meta-item strong {
@@ -303,10 +407,25 @@
   font-weight: 600;
 }
 
-.book-desc {
-  font-size: 14px;
+.book-subjects {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.book-subject-tag {
+  padding: 3px 8px;
+  border-radius: 100px;
+  background: var(--bg-elevated);
+  font-size: 11px;
   color: var(--text-muted);
-  line-height: 1.6;
+}
+
+.book-desc {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.7;
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
@@ -315,16 +434,16 @@
 
 .book-links {
   display: flex;
-  gap: 10px;
+  gap: 8px;
   margin-top: 4px;
 }
 
 .book-link {
-  padding: 6px 14px;
+  padding: 8px 16px;
   border-radius: var(--radius-sm);
   background: var(--accent);
   color: #fff;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
   text-decoration: none;
   transition: background 0.2s;
@@ -338,40 +457,71 @@
 .book-link.secondary {
   background: var(--bg-elevated);
   color: var(--text);
+  border: 1px solid var(--border);
 }
 
 .book-link.secondary:hover {
   background: var(--border);
 }
 
-/* --- Pokemon Result (PokéAPI) --- */
+/* --- Pokemon Result --- */
 .pokemon-card {
   display: flex;
-  gap: 20px;
-  padding: 16px;
+  gap: 24px;
+  padding: 24px;
   background: var(--bg);
+  border-radius: var(--radius);
+  border: 1px solid var(--border-light);
+}
+
+.pokemon-sprite-wrap {
+  position: relative;
+  width: 160px;
+  height: 160px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-elevated);
   border-radius: var(--radius);
 }
 
 .pokemon-image {
-  width: 120px;
-  height: 120px;
+  width: 140px;
+  height: 140px;
   object-fit: contain;
+  position: relative;
+  z-index: 2;
+}
+
+.pokemon-sprite-bg {
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  opacity: 0.15;
+  z-index: 1;
 }
 
 .pokemon-info {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
 }
 
 .pokemon-name {
   font-family: var(--font-display);
-  font-size: 24px;
-  font-weight: 600;
+  font-size: 22px;
+  font-weight: 700;
   color: var(--text);
   text-transform: capitalize;
+}
+
+.pokemon-id {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--text-faint);
 }
 
 .pokemon-types {
@@ -380,62 +530,177 @@
 }
 
 .pokemon-type {
-  padding: 4px 12px;
+  padding: 4px 14px;
   border-radius: 100px;
-  background: var(--accent);
   color: #fff;
   font-size: 12px;
   font-weight: 600;
   text-transform: uppercase;
+  letter-spacing: 0.03em;
 }
 
-.pokemon-stats {
+.pokemon-type.normal { background: #919aa2; }
+.pokemon-type.fire { background: #f08030; }
+.pokemon-type.water { background: #6890f0; }
+.pokemon-type.electric { background: #f8d030; color: #333; }
+.pokemon-type.grass { background: #78c850; }
+.pokemon-type.ice { background: #98d8d8; color: #333; }
+.pokemon-type.fighting { background: #c03028; }
+.pokemon-type.poison { background: #a040a0; }
+.pokemon-type.ground { background: #e0c068; color: #333; }
+.pokemon-type.flying { background: #a890f0; }
+.pokemon-type.psychic { background: #f85888; }
+.pokemon-type.bug { background: #a8b820; }
+.pokemon-type.rock { background: #b8a038; }
+.pokemon-type.ghost { background: #705898; }
+.pokemon-type.dragon { background: #7038f8; }
+.pokemon-type.dark { background: #705848; }
+.pokemon-type.steel { background: #b8b8d0; color: #333; }
+.pokemon-type.fairy { background: #ee99ac; }
+
+.pokemon-physical {
   font-size: 13px;
   color: var(--text-muted);
-  line-height: 1.6;
+  display: flex;
+  gap: 16px;
 }
 
-/* --- Country Result (Country API) --- */
+.pokemon-physical span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.pokemon-abilities {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.pokemon-ability-tag {
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: var(--bg-elevated);
+  font-size: 12px;
+  color: var(--text-muted);
+  text-transform: capitalize;
+}
+
+.pokemon-ability-tag.hidden-ability {
+  border: 1px solid var(--accent);
+  color: var(--accent);
+}
+
+/* Pokemon stat bars */
+.pokemon-stats-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.pokemon-stat-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pokemon-stat-label {
+  width: 40px;
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: var(--text-faint);
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+.pokemon-stat-bar-wrap {
+  flex: 1;
+  height: 8px;
+  background: var(--bg-elevated);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.pokemon-stat-bar {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.6s ease;
+  background: var(--accent);
+}
+
+.pokemon-stat-bar.high { background: #22c55e; }
+.pokemon-stat-bar.mid { background: var(--accent); }
+.pokemon-stat-bar.low { background: #ef4444; }
+
+.pokemon-stat-value {
+  width: 30px;
+  text-align: right;
+  font-size: 12px;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  color: var(--text);
+}
+
+.pokemon-total-stat {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 4px;
+  font-family: var(--font-mono);
+}
+
+/* --- Country Result --- */
 .country-card {
-  padding: 16px;
+  padding: 24px;
   background: var(--bg);
   border-radius: var(--radius);
+  border: 1px solid var(--border-light);
 }
 
-.country-flag {
-  width: 100%;
-  max-width: 200px;
-  border-radius: 6px;
-  margin-bottom: 16px;
-  box-shadow: var(--shadow-sm);
+.country-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.country-flag-emoji {
+  font-size: 56px;
+  line-height: 1;
 }
 
 .country-name {
   font-family: var(--font-display);
   font-size: 24px;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--text);
-  margin-bottom: 12px;
+}
+
+.country-native-name {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin-top: 2px;
 }
 
 .country-info {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
 }
 
 .country-info-item {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  padding: 10px 12px;
+  padding: 12px 14px;
   background: var(--bg-card);
   border-radius: var(--radius-sm);
   border: 1px solid var(--border-light);
 }
 
 .country-label {
-  font-size: 11px;
+  font-size: 10px;
   color: var(--text-faint);
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -449,46 +714,106 @@
   word-break: break-word;
 }
 
+.country-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.country-map-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  background: var(--accent);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.2s;
+}
+
+.country-map-link:hover {
+  background: var(--accent-hover);
+  color: #fff;
+}
+
+.country-map-link svg {
+  width: 14px;
+  height: 14px;
+}
+
+.country-wiki-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-elevated);
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  border: 1px solid var(--border);
+  transition: all 0.2s;
+}
+
+.country-wiki-link:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
 /* --- Tools Mobile Responsive --- */
 @media (max-width: 768px) {
-  .api-tools-section { padding: 0 16px 60px; gap: 16px; }
+  .api-tools-section { padding: 0 16px 60px; gap: 20px; }
   .api-tool-card { border-radius: var(--radius); }
   .api-tool-header { padding: 16px 18px; flex-wrap: wrap; gap: 10px; }
-  .api-tool-header h2 { font-size: 17px; }
+  .api-tool-header h2 { font-size: 16px; }
+  .api-tool-icon { width: 36px; height: 36px; font-size: 18px; }
   .api-tool-body { padding: 16px; }
   .api-search-row { flex-direction: column; }
   .api-btn { width: 100%; text-align: center; }
   .currency-row { flex-direction: column; }
-  .currency-arrow { 
+  .currency-arrow {
     padding-top: 0;
     transform: rotate(90deg);
     align-self: center;
   }
   .book-card { flex-direction: column; align-items: center; text-align: center; }
-  .book-cover { width: 100px; height: 140px; }
+  .book-cover { width: 110px; height: 155px; }
   .book-title { font-size: 17px; }
   .book-links { flex-direction: column; width: 100%; }
   .book-link { text-align: center; }
   .pokemon-card { flex-direction: column; align-items: center; text-align: center; }
-  .pokemon-image { width: 100px; height: 100px; }
+  .pokemon-sprite-wrap { width: 140px; height: 140px; }
+  .pokemon-image { width: 120px; height: 120px; }
   .pokemon-name { font-size: 20px; }
   .pokemon-types { justify-content: center; }
+  .pokemon-physical { justify-content: center; }
+  .pokemon-abilities { justify-content: center; }
+  .pokemon-stat-label { width: 34px; font-size: 10px; }
   .country-card { text-align: center; }
-  .country-flag { margin: 0 auto 16px; }
-  .country-info { grid-template-columns: 1fr; }
+  .country-header { flex-direction: column; }
+  .country-info { grid-template-columns: 1fr 1fr; }
+  .country-links { justify-content: center; }
   .card-move-controls { opacity: 1; pointer-events: auto; }
 }
 
 @media (max-width: 480px) {
   .api-tools-section { padding: 0 12px 40px; }
   .api-tool-header { padding: 14px 14px; }
-  .api-tool-header h2 { font-size: 16px; }
-  .api-badge { font-size: 10px; padding: 3px 8px; }
+  .api-tool-header h2 { font-size: 15px; }
+  .api-badge { font-size: 9px; padding: 3px 8px; }
   .api-tool-body { padding: 14px; }
   .api-input { padding: 10px 14px; font-size: 14px; }
   .api-btn { padding: 10px 20px; font-size: 14px; }
   .api-select { padding: 10px 14px; font-size: 14px; }
-  .book-card { padding: 14px; gap: 14px; }
-  .pokemon-card { padding: 14px; gap: 14px; }
-  .country-card { padding: 14px; }
+  .book-card { padding: 16px; gap: 14px; }
+  .pokemon-card { padding: 16px; gap: 14px; }
+  .country-card { padding: 16px; }
+  .country-info { grid-template-columns: 1fr; }
+  .country-flag-emoji { font-size: 44px; }
+  .country-name { font-size: 20px; }
 }

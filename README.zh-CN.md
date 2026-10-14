@@ -11,9 +11,9 @@
 ## 功能特性
 
 - **首页** — 60+ 个精选网站，按类别分类（工具、学习、游戏、其他），支持搜索和分页
-- **API 工具** — 图书搜索（Open Library）、货币转换器、宝可梦查询、国家信息
+- **API 工具** — 图书搜索（Open Library）、货币转换器（ExchangeRate API）、带属性条的宝可梦查询（PokéAPI）、带地图链接的国家信息（countries.dev）
 - **食谱搜索** — 按食材、菜系或餐类搜索食谱（由 TheMealDB API 提供支持）
-- **动漫** — 动漫搜索与发现（由 Jikan API 提供支持）
+- **动漫** — 动漫搜索与发现，包含季度图表、最高评分和详情弹窗（由 AniList GraphQL API 提供支持）
 - **游戏** — 游戏精彩片段和嵌入式视频
 - **天气组件** — 实时天气与城市搜索（由 Open-Meteo API 提供支持）
 - **深色/浅色主题** — 主题切换，设置自动保存
@@ -29,12 +29,13 @@
 | HTML5 | 页面结构 |
 | CSS3 | 样式（使用 CSS 自定义属性/变量） |
 | 原生 JavaScript | 所有交互逻辑——无框架 |
+| AniList GraphQL API | 动漫数据（免费，无需密钥） |
 | TheMealDB API | 食谱搜索 |
 | Open-Meteo API | 天气与地理编码 |
-| Jikan API | 动漫数据（非官方 MyAnimeList） |
 | Open Library API | 图书搜索 |
 | PokéAPI | 宝可梦数据 |
-| REST Countries API | 国家信息 |
+| ExchangeRate API (open.er-api.com) | 货币转换 |
+| countries.dev API | 国家信息 |
 | GitHub Pages | 免费托管 |
 
 ## 项目结构
@@ -44,7 +45,7 @@ web_simo-3.0/
 ├── index.html          # 首页 — 精选工具列表（带分页）
 ├── tools.html          # API 工具（图书、货币、宝可梦、国家）
 ├── food.html           # 食谱搜索
-├── anime.html          # 动漫搜索
+├── anime.html          # 动漫搜索与发现（AniList）
 ├── game.html           # 游戏回放
 ├── about.html          # 关于页面（双语）
 ├── 404.html            # 自定义 404 页面
@@ -56,15 +57,10 @@ web_simo-3.0/
 │   ├── anime.css       # 动漫页样式
 │   └── settings.css    # 设置面板样式
 ├── js/
-│   ├── main.js         # 核心逻辑（导航、主题、工具、搜索、食谱、天气）
-│   ├── tools.js        # API 工具逻辑
-│   ├── anime.js        # 动漫页逻辑
+│   ├── main.js         # 核心逻辑（导航、主题、搜索、食谱、天气）
+│   ├── tools.js        # API 工具逻辑（图书、货币、宝可梦、国家）
+│   ├── anime.js        # 动漫页逻辑（AniList GraphQL）
 │   ├── SPA.js          # SPA 工具
-│   ├── lib/
-│   │   ├── jikan.js    # Jikan API 封装
-│   │   └── util/
-│   │       ├── Request.js
-│   │       └── Settings.js
 │   └── settings/
 │       ├── AudioManager.js    # 背景音乐播放与 UI 音效
 │       ├── SettingsPanel.js   # 设置界面
@@ -109,18 +105,19 @@ web_simo-3.0/
 
 | API | 费用 | 用途 |
 |---|---|---|
+| [AniList GraphQL](https://anilist.co/graphiql) | 免费 | 动漫搜索、季度图表、详情数据 |
 | [TheMealDB](https://www.themealdb.com/) | 免费 | 按食材/菜系搜索食谱 |
 | [Open-Meteo](https://open-meteo.com/) | 免费 | 天气预报与地理编码 |
-| [Jikan](https://jikan.moe/) | 免费 | 动漫搜索与数据 |
 | [Open Library](https://openlibrary.org/) | 免费 | 图书搜索 |
-| [PokéAPI](https://pokeapi.co/) | 免费 | 宝可梦数据 |
-| [REST Countries](https://restcountries.com/) | 免费 | 国家信息 |
+| [PokéAPI](https://pokeapi.co/) | 免费 | 宝可梦数据（含属性） |
+| [ExchangeRate API](https://open.er-api.com/) | 免费 | 货币转换汇率 |
+| [countries.dev](https://countries.dev/) | 免费 | 国家信息 |
 
 ## 致谢
 
 - **背景音乐**: [Prod by 24T](https://space.bilibili.com/252024287) — 所有权利归原创作者所有。编曲/后缀: Prod by 24T
 - **字体**：[Fraunces](https://fonts.google.com/specimen/Fraunces)、[DM Sans](https://fonts.google.com/specimen/DM+Sans)、[JetBrains Mono](https://fonts.google.com/specimen/JetBrains+Mono)（来自 Google Fonts）
-- **API**：TheMealDB、Open-Meteo、Jikan、Open Library、PokéAPI、REST Countries
+- **API**：AniList GraphQL、TheMealDB、Open-Meteo、Open Library、PokéAPI、ExchangeRate API、countries.dev
 
 ## 许可证
 
